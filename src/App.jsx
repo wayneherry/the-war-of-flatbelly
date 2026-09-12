@@ -181,7 +181,8 @@ export default function App() {
 
   // Modals
   const [victoryModal, setVictoryModal] = useState(null);
-  const [showAddReward, setShowAddReward] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [editingReward, setEditingReward] = useState(null);
   const [showWaistModal, setShowWaistModal] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
@@ -357,25 +358,50 @@ export default function App() {
     say(`🎉 Redeemed: "${reward.title}"! Enjoy your reward!`);
   }
 
-  function handleAddReward(newItem) {
-    if (!newItem.title || !newItem.cost) return;
-    setRewards(p => [
-      ...p,
-      {
-        id: `rew_${Date.now()}`,
-        title: newItem.title,
-        emoji: newItem.emoji || "🎁",
-        cost: Number(newItem.cost) || 3,
-        redeemedCount: 0
-      }
-    ]);
-    setShowAddReward(false);
-    say("✨ New reward added to Wishlist!");
+  function handleSaveReward(item) {
+    if (!item.title || !item.cost) return;
+    const costNum = Math.max(1, parseInt(item.cost, 10) || 1);
+    
+    if (item.id) {
+      // Edit existing reward
+      setRewards(p =>
+        p.map(r =>
+          r.id === item.id
+            ? { ...r, title: item.title, emoji: item.emoji || "🎁", cost: costNum }
+            : r
+        )
+      );
+      say(`✏️ Reward "${item.title}" updated!`);
+    } else {
+      // Add new reward
+      setRewards(p => [
+        ...p,
+        {
+          id: `rew_${Date.now()}`,
+          title: item.title,
+          emoji: item.emoji || "🎁",
+          cost: costNum,
+          redeemedCount: 0
+        }
+      ]);
+      say(`✨ New reward "${item.title}" added to Wishlist!`);
+    }
+    setShowRewardModal(false);
+    setEditingReward(null);
   }
 
   function handleDeleteReward(id) {
+    const item = rewards.find(r => r.id === id);
+    if (!item) return;
+    if (!confirm(`Delete reward "${item.title}"?`)) return;
     setRewards(p => p.filter(r => r.id !== id));
-    say("Reward deleted.");
+    say(`Reward "${item.title}" deleted.`);
+  }
+
+  function handleRestoreDefaultRewards() {
+    if (!confirm("Reset Wishlist rewards back to original defaults?")) return;
+    setRewards(INITIAL_REWARDS);
+    say("✨ Restored original default rewards!");
   }
 
   // ─── Waistline Handlers ─────────────────────────────────────────────────────
@@ -542,46 +568,47 @@ export default function App() {
       {/* Top Header */}
       <header
         style={{
-          background: "rgba(253, 240, 244, 0.88)",
+          background: "rgba(253, 240, 244, 0.90)",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
           borderBottom: `1.5px solid ${T.border}`,
           position: "sticky",
           top: 0,
           zIndex: 40,
-          padding: "10px 16px"
+          padding: "8px 12px"
         }}
       >
-        <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
           {/* Brand Logo & Name */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span
                 style={{
                   background: T.lime,
                   color: T.textDeep,
                   fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 900,
-                  fontSize: 12,
-                  padding: "2px 8px",
-                  borderRadius: 6,
-                  letterSpacing: "0.08em"
+                  fontSize: 11,
+                  padding: "1px 6px",
+                  borderRadius: 5,
+                  letterSpacing: "0.06em"
                 }}
               >
                 WAR FOR FITNESS
               </span>
-              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>
+              <span style={{ fontSize: 10, color: T.textMuted, fontWeight: 700 }}>
                 {todayStr}
               </span>
             </div>
             <h1
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: 28,
-                letterSpacing: "0.05em",
+                fontSize: "clamp(20px, 5.2vw, 26px)",
+                letterSpacing: "0.04em",
                 color: T.textDeep,
-                lineHeight: 1.15,
-                marginTop: 2
+                lineHeight: 1.1,
+                margin: "1px 0 0",
+                whiteSpace: "nowrap"
               }}
             >
               The War of FlatBelly
@@ -589,23 +616,22 @@ export default function App() {
           </div>
 
           {/* Top Stat Badges */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             {/* Streak Flame */}
             <div
               style={{
-                background: "rgba(255, 255, 255, 0.9)",
+                background: "rgba(255, 255, 255, 0.92)",
                 border: `1.5px solid ${T.border}`,
-                borderRadius: 14,
-                padding: "6px 12px",
+                borderRadius: 12,
+                padding: "4px 8px",
                 display: "flex",
                 alignItems: "center",
-                gap: 5
+                gap: 4
               }}
               title="Every-other-day grace rule: Workout every 1-2 days to keep your streak!"
             >
-              <span style={{ fontSize: 16 }}>🔥</span>
-              <span className="font-num" style={{ fontWeight: 800, fontSize: 18, color: T.textDeep }}>{streak}</span>
-              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800 }}>STREAK</span>
+              <span style={{ fontSize: 14 }}>🔥</span>
+              <span className="font-num" style={{ fontWeight: 800, fontSize: 16, color: T.textDeep }}>{streak}</span>
             </div>
 
             {/* Medals Wallet Badge */}
@@ -616,20 +642,20 @@ export default function App() {
                 background: T.lime,
                 color: T.textDeep,
                 border: `1.5px solid ${T.limeHover}`,
-                borderRadius: 14,
-                padding: "6px 12px",
+                borderRadius: 12,
+                padding: "4px 8px",
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
+                gap: 4,
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontWeight: 900,
-                fontSize: 16,
+                fontSize: 15,
                 cursor: "pointer",
                 boxShadow: "0 4px 12px rgba(188, 227, 0, 0.35)",
                 transition: "transform 0.15s ease"
               }}
             >
-              <span style={{ fontSize: 16 }}>🏅</span>
+              <span style={{ fontSize: 14 }}>🏅</span>
               <span className="font-num">{medals.balance}</span>
             </button>
 
@@ -643,14 +669,14 @@ export default function App() {
               style={{
                 background: "rgba(255, 255, 255, 0.85)",
                 border: `1px solid ${T.border}`,
-                borderRadius: 12,
-                width: 36,
-                height: 36,
+                borderRadius: 10,
+                width: 32,
+                height: 32,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                fontSize: 15
+                fontSize: 14
               }}
               title="Toggle Audio"
             >
@@ -661,7 +687,7 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{ maxWidth: 640, margin: "0 auto", padding: activeTab === "battle" ? "8px 14px 2px" : "16px 16px 28px", height: activeTab === "battle" ? "calc(100dvh - 128px)" : "auto", boxSizing: "border-box", overflow: activeTab === "battle" ? "hidden" : "visible" }}>
+      <main style={{ width: "100%", maxWidth: 640, margin: "0 auto", padding: activeTab === "battle" ? "8px 14px 2px" : "14px 14px 28px", height: activeTab === "battle" ? "calc(100dvh - 128px)" : "auto", boxSizing: "border-box", overflow: activeTab === "battle" ? "hidden" : "visible" }}>
         {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES WITH REPEATING WORKOUT ART WALLPAPER BEHIND) ─────── */}
         {activeTab === "battle" && (
           <div
@@ -805,19 +831,42 @@ export default function App() {
             </div>
 
             {/* Wishlist Header & Add Button */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <div>
-                <h3 style={{ fontSize: 22, color: T.textDeep }}>🎁 WISHLIST REWARDS</h3>
-                <div style={{ fontSize: 12, color: T.textMuted }}>Accumulate medals to claim personal treats</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
+              <div style={{ minWidth: 160, flex: 1 }}>
+                <h3 style={{ fontSize: 20, color: T.textDeep, margin: 0 }}>🎁 WISHLIST REWARDS</h3>
+                <div style={{ fontSize: 11, color: T.textMuted }}>Earn medals & redeem joyful treats</div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowAddReward(true)}
-                className="btn-raspberry"
-                style={{ fontSize: 14, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 5 }}
-              >
-                <span>➕ NEW REWARD</span>
-              </button>
+              <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+                <button
+                  type="button"
+                  onClick={handleRestoreDefaultRewards}
+                  style={{
+                    fontSize: 11,
+                    padding: "6px 8px",
+                    background: "rgba(150, 27, 72, 0.05)",
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 8,
+                    color: T.textMuted,
+                    cursor: "pointer",
+                    fontWeight: 700,
+                    whiteSpace: "nowrap"
+                  }}
+                  title="Reset to default items"
+                >
+                  ↺ RESET
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingReward(null);
+                    setShowRewardModal(true);
+                  }}
+                  className="btn-raspberry"
+                  style={{ fontSize: 12, padding: "6px 12px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
+                >
+                  <span>➕ NEW</span>
+                </button>
+              </div>
             </div>
 
             {/* Rewards Grid */}
@@ -831,41 +880,72 @@ export default function App() {
                     key={item.id}
                     className="icy-card"
                     style={{
-                      padding: "18px 20px",
+                      padding: "14px 14px",
                       border: canAfford ? `2px solid ${T.lime}` : `1.5px solid ${T.border}`,
                       boxShadow: canAfford ? `0 8px 24px ${T.limeGlow}` : "none"
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <span style={{ fontSize: 34 }}>{item.emoji}</span>
-                        <div>
-                          <h4 style={{ fontSize: 18, color: T.textDeep }}>{item.title}</h4>
-                          <div style={{ fontSize: 12, color: T.textMuted, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                            <span>Requires <strong>{item.cost}</strong> 🏅</span>
+                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: 28, flexShrink: 0 }}>{item.emoji}</span>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <h4 style={{ fontSize: 16, color: T.textDeep, wordBreak: "break-word", lineHeight: 1.15, margin: 0 }}>{item.title}</h4>
+                          <div style={{ fontSize: 11, color: T.textMuted, display: "flex", alignItems: "center", gap: 5, marginTop: 2, flexWrap: "wrap" }}>
+                            <span>Cost: <strong>{item.cost}</strong> 🏅</span>
                             <span>·</span>
-                            <span>Redeemed {item.redeemedCount || 0} times</span>
+                            <span>Redeemed: {item.redeemedCount || 0}</span>
                           </div>
                         </div>
                       </div>
 
-                      {!INITIAL_REWARDS.some(r => r.id === item.id) && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingReward(item);
+                            setShowRewardModal(true);
+                          }}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 9,
+                            background: "rgba(150, 27, 72, 0.06)",
+                            border: `1px solid ${T.border}`,
+                            color: T.textDeep,
+                            cursor: "pointer",
+                            fontSize: 14,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.15s ease"
+                          }}
+                          title="Edit this reward"
+                        >
+                          ✏️
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleDeleteReward(item.id)}
                           style={{
-                            background: "transparent",
-                            border: "none",
+                            width: 32,
+                            height: 32,
+                            borderRadius: 9,
+                            background: "rgba(150, 27, 72, 0.06)",
+                            border: `1px solid ${T.border}`,
                             color: T.textMuted,
                             cursor: "pointer",
-                            fontSize: 16,
-                            padding: 4
+                            fontSize: 14,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.15s ease"
                           }}
-                          title="Delete reward"
+                          title="Delete this reward"
                         >
-                          ✕
+                          🗑️
                         </button>
-                      )}
+                      </div>
                     </div>
 
                     {/* Progress Bar */}
@@ -882,8 +962,8 @@ export default function App() {
                     </div>
 
                     {/* Redeem Action Button */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: canAfford ? T.textDeep : T.textMuted }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: canAfford ? T.textDeep : T.textMuted, minWidth: 120, flex: 1 }}>
                         {canAfford ? "✨ Medals ready to claim!" : `Need ${item.cost - medals.balance} more 🏅 (${progressPct}%)`}
                       </span>
 
@@ -893,16 +973,18 @@ export default function App() {
                         disabled={!canAfford}
                         className={canAfford ? "btn-lime" : ""}
                         style={{
-                          padding: "8px 18px",
+                          padding: "7px 14px",
                           borderRadius: 12,
-                          fontSize: 15,
+                          fontSize: 13,
                           cursor: canAfford ? "pointer" : "not-allowed",
                           background: canAfford ? T.lime : T.bgSubtle,
                           color: canAfford ? T.textDeep : T.textMuted,
-                          border: canAfford ? `1px solid ${T.limeHover}` : "none"
+                          border: canAfford ? `1px solid ${T.limeHover}` : "none",
+                          whiteSpace: "nowrap",
+                          flexShrink: 0
                         }}
                       >
-                        {canAfford ? "🎉 REDEEM NOW" : "LOCKED"}
+                        {canAfford ? "🎉 REDEEM NOW" : `🔒 NEED ${item.cost - medals.balance} 🏅`}
                       </button>
                     </div>
                   </div>
@@ -1555,11 +1637,15 @@ export default function App() {
         </div>
       )}
 
-      {/* ─── ADD REWARD MODAL ─────────────────────────────────────────────── */}
-      {showAddReward && (
-        <AddRewardModal
-          onClose={() => setShowAddReward(false)}
-          onAdd={handleAddReward}
+      {/* ─── ADD / EDIT REWARD MODAL ───────────────────────────────────────── */}
+      {showRewardModal && (
+        <RewardModal
+          initialData={editingReward}
+          onClose={() => {
+            setShowRewardModal(false);
+            setEditingReward(null);
+          }}
+          onSave={handleSaveReward}
         />
       )}
 
@@ -1575,13 +1661,28 @@ export default function App() {
   );
 }
 
-// ─── Modal: Add Custom Reward (English) ───────────────────────────────────────
-function AddRewardModal({ onClose, onAdd }) {
-  const [title, setTitle] = useState("");
-  const [cost, setCost] = useState(3);
-  const [emoji, setEmoji] = useState("🧋");
+// ─── Modal: Add & Edit Wishlist Reward (English) ──────────────────────────────
+function RewardModal({ initialData, onClose, onSave }) {
+  const isEditing = Boolean(initialData?.id);
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [cost, setCost] = useState(initialData?.cost || 3);
+  const [emoji, setEmoji] = useState(initialData?.emoji || "🧋");
 
-  const emojiOptions = ["🧋", "🎮", "🍣", "🎬", "👕", "👟", "☕", "🍕", "💆", "🏖️", "📚", "🎁"];
+  const emojiOptions = [
+    "🧋", "🎮", "🍣", "🎬", "👕", "👟", "☕", "🍕", "💆", "🏖️", "📚", "🎁",
+    "🍰", "🍦", "🍔", "🍻", "🎧", "🚲", "✈️", "🛋️", "📱", "🏆"
+  ];
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onSave({
+      id: initialData?.id,
+      title: title.trim(),
+      emoji: emoji || "🎁",
+      cost: Math.max(1, parseInt(cost, 10) || 1)
+    });
+  }
 
   return (
     <div
@@ -1592,8 +1693,8 @@ function AddRewardModal({ onClose, onAdd }) {
         right: 0,
         bottom: 0,
         background: "rgba(104, 12, 43, 0.65)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
         zIndex: 99999,
         display: "flex",
         alignItems: "center",
@@ -1601,121 +1702,157 @@ function AddRewardModal({ onClose, onAdd }) {
         padding: 20
       }}
     >
-      <div className="icy-card" style={{ maxWidth: 390, width: "100%", padding: 24 }}>
+      <div className="icy-card" style={{ maxWidth: 410, width: "100%", padding: "26px 22px" }}>
         <h3 style={{ fontSize: 22, color: T.textDeep, marginBottom: 14 }}>
-          ➕ ADD NEW WISHLIST REWARD
+          {isEditing ? "✏️ EDIT WISHLIST REWARD" : "➕ ADD NEW WISHLIST REWARD"}
         </h3>
 
-        {/* Emoji Selector */}
-        <div style={{ marginBottom: 14 }}>
-          <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            Select Icon:
-          </label>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {emojiOptions.map(em => (
-              <button
-                key={em}
-                type="button"
-                onClick={() => setEmoji(em)}
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
-                  fontSize: 20,
-                  border: emoji === em ? `2px solid ${T.lime}` : `1px solid ${T.border}`,
-                  background: emoji === em ? T.limeDim : "transparent",
-                  cursor: "pointer"
-                }}
-              >
-                {em}
-              </button>
-            ))}
+        <form onSubmit={handleSubmit}>
+          {/* Emoji Selector */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
+              Select Icon:
+            </label>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", maxHeight: 105, overflowY: "auto", padding: "4px 2px" }}>
+              {emojiOptions.map(em => (
+                <button
+                  key={em}
+                  type="button"
+                  onClick={() => setEmoji(em)}
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    fontSize: 20,
+                    border: emoji === em ? `2px solid ${T.lime}` : `1px solid ${T.border}`,
+                    background: emoji === em ? T.limeDim : "transparent",
+                    cursor: "pointer"
+                  }}
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Title Input */}
-        <div style={{ marginBottom: 14 }}>
-          <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            Reward Name / Activity:
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            placeholder="e.g. Iced Bubble Tea, Night Out"
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              borderRadius: 12,
-              border: `1.5px solid ${T.border}`,
-              background: "#FFFFFF",
-              color: T.textDeep,
-              fontSize: 14,
-              fontWeight: 700,
-              outline: "none",
-              boxSizing: "border-box"
-            }}
-          />
-        </div>
+          {/* Title Input */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
+              Reward Name / Treat:
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="e.g. Iced Bubble Tea, Night Out"
+              required
+              style={{
+                width: "100%",
+                padding: "10px 14px",
+                borderRadius: 12,
+                border: `1.5px solid ${T.border}`,
+                background: "#FFFFFF",
+                color: T.textDeep,
+                fontSize: 15,
+                fontWeight: 700,
+                outline: "none",
+                boxSizing: "border-box"
+              }}
+            />
+          </div>
 
-        {/* Cost Input */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            Required Medals (🏅):
-          </label>
-          <div style={{ display: "flex", gap: 8 }}>
-            {[3, 5, 10, 20, 50].map(amt => (
-              <button
-                key={amt}
-                type="button"
-                onClick={() => setCost(amt)}
+          {/* Cost Input (Manual number + quick presets) */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted }}>
+                Required Medals (🏅):
+              </label>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: T.textBright }}>
+                {cost} 🏅
+              </span>
+            </div>
+
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              <input
+                type="number"
+                min="1"
+                max="9999"
+                value={cost}
+                onChange={e => setCost(Math.max(1, parseInt(e.target.value, 10) || 1))}
                 style={{
-                  flex: 1,
-                  padding: "8px 0",
-                  borderRadius: 10,
-                  fontSize: 16,
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  background: cost === amt ? T.lime : T.bgSubtle,
+                  width: "100%",
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  border: `1.5px solid ${T.border}`,
+                  background: "#FFFFFF",
                   color: T.textDeep,
-                  border: cost === amt ? `1px solid ${T.limeHover}` : `1px solid ${T.border}`,
-                  cursor: "pointer"
+                  fontSize: 16,
+                  fontWeight: 800,
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  boxSizing: "border-box",
+                  outline: "none"
                 }}
-              >
-                {amt} 🏅
-              </button>
-            ))}
-          </div>
-        </div>
+              />
+            </div>
 
-        {/* Action Buttons */}
-        <div style={{ display: "flex", gap: 10 }}>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              flex: 1,
-              padding: "10px 0",
-              borderRadius: 12,
-              border: `1px solid ${T.border}`,
-              background: "transparent",
-              color: T.textMuted,
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: 16,
-              cursor: "pointer"
-            }}
-          >
-            CANCEL
-          </button>
-          <button
-            type="button"
-            onClick={() => onAdd({ title, cost, emoji })}
-            disabled={!title.trim()}
-            className="btn-lime"
-            style={{ flex: 1, fontSize: 16 }}
-          >
-            ADD REWARD
-          </button>
-        </div>
+            {/* Quick preset chips */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {[1, 2, 3, 5, 10, 20, 30, 50, 100].map(amt => (
+                <button
+                  key={amt}
+                  type="button"
+                  onClick={() => setCost(amt)}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontFamily: "'Bebas Neue', sans-serif",
+                    background: cost === amt ? T.lime : T.bgSubtle,
+                    color: T.textDeep,
+                    border: cost === amt ? `1px solid ${T.limeHover}` : `1px solid ${T.border}`,
+                    cursor: "pointer"
+                  }}
+                >
+                  {amt} 🏅
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                flex: 1,
+                padding: "11px 0",
+                borderRadius: 12,
+                border: `1px solid ${T.border}`,
+                background: "transparent",
+                color: T.textMuted,
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer"
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-lime"
+              style={{
+                flex: 2,
+                padding: "11px 0",
+                borderRadius: 12,
+                fontSize: 15,
+                cursor: "pointer"
+              }}
+            >
+              {isEditing ? "💾 SAVE CHANGES" : "➕ ADD REWARD"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
