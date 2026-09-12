@@ -69,6 +69,31 @@ h1, h2, h3, h4, .font-bebas {
   transform: scale(0.98);
 }
 
+/* Splash Dynamic Scale Animation (2s) */
+@keyframes splashScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+    filter: blur(6px);
+  }
+  30% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  85% {
+    transform: scale(1.10);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.splash-text {
+  animation: splashScale 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Lime Punch Action Button */
 .btn-lime {
   background: var(--lime-punch);

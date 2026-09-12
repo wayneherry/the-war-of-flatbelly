@@ -33,14 +33,13 @@ function calculateStreak(history) {
   const dates = Array.from(new Set(history.map(h => h.date))).sort().reverse();
   const today = getTodayStr();
 
-  // Parse date difference in days
   const toDays = dateStr => Math.floor(new Date(dateStr).getTime() / (1000 * 60 * 60 * 24));
   const todayDays = toDays(today);
   const latestDays = toDays(dates[0]);
 
   // Grace window: every 1~2 days allowed (diff <= 2)
   if (todayDays - latestDays > 2) {
-    return 0; // Streak broken
+    return 0;
   }
 
   let streak = 1;
@@ -110,8 +109,14 @@ function triggerConfetti(canvas) {
 
 // ─── Main Application Component ──────────────────────────────────────────────
 export default function App() {
+  // Opening Intro Splash Screen (2 seconds)
+  const [showSplash, setShowSplash] = useState(true);
+
   // Navigation: "battle" | "rewards" | "logs" | "settings"
   const [activeTab, setActiveTab] = useState("battle");
+
+  // Selection animation state for the 3 battle options
+  const [selectedRoutineId, setSelectedRoutineId] = useState(null);
 
   // State with Local-First persistence
   const [medals, setMedals] = useState(() => {
@@ -182,6 +187,14 @@ export default function App() {
 
   const canvasRef = useRef(null);
 
+  // 2-second splash timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Sync sound settings
   useEffect(() => {
     sound.enabled = soundOn;
@@ -227,9 +240,7 @@ export default function App() {
     setTimeout(() => setToastMsg(""), 3200);
   }
 
-  // Today's Battle Status
   const todayStr = getTodayStr();
-  const completedToday = history.some(h => h.date === todayStr);
   const streak = calculateStreak(history);
 
   // ─── Workout Engine ──────────────────────────────────────────────────────────
@@ -457,6 +468,47 @@ export default function App() {
   const initialWaist = waistLogs.length > 0 ? waistLogs[waistLogs.length - 1].waistCm : null;
   const waistDiff = latestWaist && initialWaist ? (latestWaist - initialWaist).toFixed(1) : null;
 
+  // ─── 1. INTRO SPLASH SCREEN (2 SECONDS DYNAMIC SCALE) ──────────────────────
+  if (showSplash) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: T.bg,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 999999,
+          padding: 24,
+          textAlign: "center",
+          userSelect: "none"
+        }}
+        onClick={() => setShowSplash(false)}
+      >
+        <div
+          className="splash-text"
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: "clamp(52px, 13vw, 92px)",
+            color: T.lime,
+            letterSpacing: "0.06em",
+            lineHeight: 0.95,
+            textShadow: `0 8px 36px ${T.limeGlow}, 0 2px 4px rgba(104, 12, 43, 0.28)`,
+            maxWidth: 680
+          }}
+        >
+          THE WAR OF FLATBELLY
+        </div>
+      </div>
+    );
+  }
+
+  // ─── 2. MAIN APPLICATION INTERFACE ──────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 88, position: "relative" }}>
       {/* Toast Notification */}
@@ -510,8 +562,8 @@ export default function App() {
                   color: T.textDeep,
                   fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 900,
-                  fontSize: 10,
-                  padding: "3px 8px",
+                  fontSize: 12,
+                  padding: "2px 8px",
                   borderRadius: 6,
                   letterSpacing: "0.08em"
                 }}
@@ -552,7 +604,7 @@ export default function App() {
               title="Every-other-day grace rule: Workout every 1-2 days to keep your streak!"
             >
               <span style={{ fontSize: 16 }}>🔥</span>
-              <span className="font-num" style={{ fontWeight: 800, fontSize: 15, color: T.textDeep }}>{streak}</span>
+              <span className="font-num" style={{ fontWeight: 800, fontSize: 18, color: T.textDeep }}>{streak}</span>
               <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800 }}>STREAK</span>
             </div>
 
@@ -571,7 +623,7 @@ export default function App() {
                 gap: 5,
                 fontFamily: "'Bebas Neue', sans-serif",
                 fontWeight: 900,
-                fontSize: 14,
+                fontSize: 16,
                 cursor: "pointer",
                 boxShadow: "0 4px 12px rgba(188, 227, 0, 0.35)",
                 transition: "transform 0.15s ease"
@@ -609,140 +661,75 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{ maxWidth: 640, margin: "0 auto", padding: "20px 16px 32px" }}>
-        {/* ─── TAB 1: WAR ROOM (Today's Battle) ───────────────────────────── */}
+      <main style={{ maxWidth: 640, margin: "0 auto", padding: "16px 16px 28px" }}>
+        {/* ─── TAB 1: WAR ROOM (MINIMALIST 3 BIG TYPOGRAPHIC CHOICES) ─────── */}
         {activeTab === "battle" && (
-          <div>
-            {/* Daily Battle Status Banner */}
-            <div
-              className="icy-card"
-              style={{
-                padding: 20,
-                marginBottom: 22,
-                background: completedToday
-                  ? "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(188, 227, 0, 0.16))"
-                  : "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(253, 240, 244, 0.95))",
-                borderColor: completedToday ? T.lime : T.borderStrong
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
-                <div>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                    <span
-                      style={{
-                        background: completedToday ? T.lime : T.textMain,
-                        color: completedToday ? T.textDeep : "#FFFFFF",
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: 11,
-                        fontWeight: 800,
-                        padding: "3px 9px",
-                        borderRadius: 6,
-                        letterSpacing: "0.04em"
-                      }}
-                    >
-                      {completedToday ? "VICTORY SECURED TODAY 🏆" : "BATTLE DISPATCH ACTIVE ⚔️"}
-                    </span>
-                    <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>
-                      Every 1-2 Days Grace Window
-                    </span>
-                  </div>
-
-                  <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textDeep, lineHeight: 1.25 }}>
-                    {completedToday
-                      ? "Today's FlatBelly Medal Earned 🏅"
-                      : "Ready for an 8-minute core blitz today?"}
-                  </h2>
-                  <p style={{ fontSize: 13, color: T.textMuted, marginTop: 5, lineHeight: 1.45 }}>
-                    {completedToday
-                      ? "Your core is firing and metabolism is surging! Feeling ambitious? Run another blitz anytime!"
-                      : "Zero friction: Even the 3-minute Emergency Bed Save preserves your streak and earns your medal!"}
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    width: 58,
-                    height: 58,
-                    borderRadius: 18,
-                    background: completedToday ? T.lime : T.bgSubtle,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 30,
-                    flexShrink: 0,
-                    boxShadow: completedToday ? `0 6px 18px ${T.limeGlow}` : "none"
-                  }}
-                >
-                  {completedToday ? "🏅" : "⚔️"}
-                </div>
-              </div>
-            </div>
-
-            {/* Battle Routines Selection Title */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <h3 style={{ fontSize: 17, fontWeight: 900, color: T.textDeep, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>🎯</span> SELECT TODAY'S BATTLE ROUTINE
-              </h3>
-              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800, letterSpacing: "0.04em" }}>ONE-TAP START</span>
-            </div>
-
-            {/* Routine Cards */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              minHeight: "calc(100vh - 210px)",
+              padding: "12px 0"
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
               {ROUTINES.map(rt => {
-                const isLazy = rt.id === "emergency_save";
+                const isSelected = selectedRoutineId === rt.id;
+                const isOtherSelected = selectedRoutineId !== null && !isSelected;
+
+                const routineTitleText =
+                  rt.id === "emergency_save"
+                    ? "EMERGENCY 3-MIN SAVE"
+                    : rt.id === "home_blitz"
+                    ? "HOME CORE BLITZ"
+                    : "OUTDOOR CARDIO RAID";
+
                 return (
                   <div
                     key={rt.id}
-                    className="icy-card icy-card-hover"
+                    onClick={() => {
+                      if (selectedRoutineId !== null) return;
+                      setSelectedRoutineId(rt.id);
+                      setTimeout(() => {
+                        startRoutine(rt);
+                        setSelectedRoutineId(null);
+                      }, 420);
+                    }}
                     style={{
-                      padding: "20px 22px",
-                      position: "relative",
-                      overflow: "hidden",
-                      border: isLazy ? `2px solid ${T.lime}` : `1.5px solid ${T.border}`
+                      background: isSelected ? T.lime : "rgba(255, 255, 255, 0.94)",
+                      color: isSelected ? T.textDeep : T.textDeep,
+                      border: isSelected ? `2.5px solid ${T.limeHover}` : `2px solid ${T.border}`,
+                      borderRadius: 24,
+                      padding: "40px 20px",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      userSelect: "none",
+                      boxShadow: isSelected
+                        ? `0 18px 48px ${T.limeGlow}`
+                        : "0 10px 30px rgba(150, 27, 72, 0.05)",
+                      transform: isSelected
+                        ? "scale(1.10)"
+                        : isOtherSelected
+                        ? "scale(0.92)"
+                        : "scale(1)",
+                      opacity: isOtherSelected ? 0 : 1,
+                      transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                      zIndex: isSelected ? 20 : 1,
+                      pointerEvents: isOtherSelected ? "none" : "auto"
                     }}
                   >
-                    {/* Top Badges */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ fontSize: 32 }}>{rt.icon}</span>
-                        <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                            {rt.subtitle}
-                          </div>
-                          <h4 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep }}>{rt.title}</h4>
-                        </div>
-                      </div>
-
-                      <span
-                        style={{
-                          background: isLazy ? T.lime : T.bgSubtle,
-                          color: T.textDeep,
-                          fontFamily: "'Bebas Neue', sans-serif",
-                          fontWeight: 800,
-                          fontSize: 11,
-                          padding: "4px 10px",
-                          borderRadius: 8,
-                          letterSpacing: "0.03em"
-                        }}
-                      >
-                        ⏱️ {rt.badge}
-                      </span>
-                    </div>
-
-                    <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 18, lineHeight: 1.45 }}>
-                      {rt.summary}
-                    </p>
-
-                    {/* Action Button */}
-                    <button
-                      type="button"
-                      onClick={() => startRoutine(rt)}
-                      className={isLazy ? "btn-lime pulse-lime" : "btn-lime"}
-                      style={{ width: "100%", fontSize: 15 }}
+                    <div
+                      style={{
+                        fontFamily: "'Bebas Neue', sans-serif",
+                        fontSize: "clamp(32px, 8.5vw, 48px)",
+                        letterSpacing: "0.06em",
+                        lineHeight: 1.05,
+                        color: T.textDeep
+                      }}
                     >
-                      <span>⚔️ START {rt.title.toUpperCase()}</span>
-                      <span style={{ fontSize: 12, opacity: 0.85 }}>({rt.durationMinutes} MIN)</span>
-                    </button>
+                      {routineTitleText}
+                    </div>
                   </div>
                 );
               })}
@@ -764,7 +751,7 @@ export default function App() {
                 borderColor: T.lime
               }}
             >
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 12, fontWeight: 900, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                 MEDAL TREASURY · EARNED GLORY
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "10px 0" }}>
@@ -784,14 +771,14 @@ export default function App() {
             {/* Wishlist Header & Add Button */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep }}>🎁 WISHLIST REWARDS</h3>
+                <h3 style={{ fontSize: 22, color: T.textDeep }}>🎁 WISHLIST REWARDS</h3>
                 <div style={{ fontSize: 12, color: T.textMuted }}>Accumulate medals to claim personal treats</div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddReward(true)}
                 className="btn-raspberry"
-                style={{ fontSize: 12, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 5 }}
+                style={{ fontSize: 14, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 5 }}
               >
                 <span>➕ NEW REWARD</span>
               </button>
@@ -817,7 +804,7 @@ export default function App() {
                       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                         <span style={{ fontSize: 34 }}>{item.emoji}</span>
                         <div>
-                          <h4 style={{ fontSize: 17, fontWeight: 800, color: T.textDeep }}>{item.title}</h4>
+                          <h4 style={{ fontSize: 18, color: T.textDeep }}>{item.title}</h4>
                           <div style={{ fontSize: 12, color: T.textMuted, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                             <span>Requires <strong>{item.cost}</strong> 🏅</span>
                             <span>·</span>
@@ -826,7 +813,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Delete Custom Button */}
                       {!INITIAL_REWARDS.some(r => r.id === item.id) && (
                         <button
                           type="button"
@@ -873,8 +859,7 @@ export default function App() {
                         style={{
                           padding: "8px 18px",
                           borderRadius: 12,
-                          fontSize: 13,
-                          fontWeight: 800,
+                          fontSize: 15,
                           cursor: canAfford ? "pointer" : "not-allowed",
                           background: canAfford ? T.lime : T.bgSubtle,
                           color: canAfford ? T.textDeep : T.textMuted,
@@ -891,7 +876,7 @@ export default function App() {
 
             {/* Redemption History Section */}
             <div className="icy-card" style={{ padding: 20 }}>
-              <h4 style={{ fontSize: 16, fontWeight: 900, color: T.textDeep, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <h4 style={{ fontSize: 18, color: T.textDeep, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
                 <span>📜</span> SPOILS REDEMPTION VAULT ({redemptions.length})
               </h4>
               {redemptions.length === 0 ? (
@@ -918,7 +903,7 @@ export default function App() {
                         <span style={{ fontWeight: 700, color: T.textDeep }}>{rd.title}</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ color: T.textBright, fontWeight: 900 }}>-{rd.cost} 🏅</span>
+                        <span style={{ color: T.textBright, fontFamily: "'Bebas Neue', sans-serif", fontSize: 16 }}>-{rd.cost} 🏅</span>
                         <span style={{ color: T.textMuted, fontSize: 11 }}>{rd.date}</span>
                       </div>
                     </div>
@@ -943,7 +928,7 @@ export default function App() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                     BELLY TRANSFORMATION · NAVEL WAISTLINE
                   </div>
                   <h3 className="font-num" style={{ fontSize: 34, color: T.textDeep, letterSpacing: "0.03em", marginTop: 2 }}>
@@ -955,7 +940,7 @@ export default function App() {
                   type="button"
                   onClick={() => setShowWaistModal(true)}
                   className="btn-lime"
-                  style={{ fontSize: 13, padding: "9px 16px" }}
+                  style={{ fontSize: 14, padding: "8px 16px" }}
                 >
                   <span>📏 LOG WAISTLINE</span>
                 </button>
@@ -986,7 +971,7 @@ export default function App() {
 
             {/* Calendar & Battle History */}
             <div className="icy-card" style={{ padding: 20, marginBottom: 20 }}>
-              <h4 style={{ fontSize: 16, fontWeight: 900, color: T.textDeep, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+              <h4 style={{ fontSize: 18, color: T.textDeep, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
                 <span>📅</span> BATTLE LOG ({history.length} VICTORIES)
               </h4>
 
@@ -1009,7 +994,7 @@ export default function App() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: T.textDeep }}>
+                        <div style={{ fontSize: 16, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.04em", color: T.textDeep }}>
                           {h.routineTitle}
                         </div>
                         <div style={{ fontSize: 12, color: T.textMuted, marginTop: 2 }}>
@@ -1024,9 +1009,8 @@ export default function App() {
                               background: T.lime,
                               color: T.textDeep,
                               fontFamily: "'Bebas Neue', sans-serif",
-                              fontWeight: 900,
-                              fontSize: 11,
-                              padding: "4px 9px",
+                              fontSize: 13,
+                              padding: "3px 8px",
                               borderRadius: 6,
                               letterSpacing: "0.03em"
                             }}
@@ -1065,7 +1049,7 @@ export default function App() {
         {/* ─── TAB 4: SETTINGS (Preferences & Danger Zone) ────────────────── */}
         {activeTab === "settings" && (
           <div className="icy-card" style={{ padding: 22 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+            <h3 style={{ fontSize: 20, color: T.textDeep, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
               <span>⚙️</span> PREFERENCES & DATA BACKUP
             </h3>
 
@@ -1085,8 +1069,7 @@ export default function App() {
                   borderRadius: 20,
                   padding: "6px 14px",
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontWeight: 800,
-                  fontSize: 12,
+                  fontSize: 14,
                   cursor: "pointer"
                 }}
               >
@@ -1112,14 +1095,14 @@ export default function App() {
                   type="button"
                   onClick={handleExportData}
                   className="btn-raspberry"
-                  style={{ flex: 1, fontSize: 12, padding: "10px 0" }}
+                  style={{ flex: 1, fontSize: 14, padding: "10px 0" }}
                 >
                   📥 EXPORT BACKUP JSON
                 </button>
 
                 <label
                   className="btn-lime"
-                  style={{ flex: 1, fontSize: 12, padding: "10px 0", textAlign: "center", cursor: "pointer" }}
+                  style={{ flex: 1, fontSize: 14, padding: "10px 0", textAlign: "center", cursor: "pointer" }}
                 >
                   📤 RESTORE BACKUP
                   <input type="file" accept=".json" onChange={handleImportData} style={{ display: "none" }} />
@@ -1132,7 +1115,7 @@ export default function App() {
 
             {/* Reset / Clear Test Data Section */}
             <div style={{ padding: "18px 0", borderTop: `1.5px dashed ${T.border}`, marginTop: 6 }}>
-              <div style={{ fontWeight: 900, color: T.textBright, fontSize: 15, marginBottom: 4 }}>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: T.textBright, marginBottom: 4 }}>
                 🗑️ DANGER ZONE: CLEAR TEST DATA & RESET MEDALS
               </div>
               <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.45 }}>
@@ -1148,9 +1131,8 @@ export default function App() {
                   borderRadius: 14,
                   padding: "13px 18px",
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontWeight: 900,
-                  fontSize: 13,
-                  letterSpacing: "0.02em",
+                  fontSize: 16,
+                  letterSpacing: "0.04em",
                   cursor: "pointer",
                   width: "100%",
                   display: "flex",
@@ -1166,7 +1148,7 @@ export default function App() {
         )}
       </main>
 
-      {/* ─── BOTTOM NAVIGATION BAR ─────────────────────────────────────────── */}
+      {/* ─── BOTTOM NAVIGATION BAR (ALWAYS ACCESSIBLE) ─────────────────────── */}
       {!activeRoutine && (
         <nav
           style={{
@@ -1210,8 +1192,7 @@ export default function App() {
                   gap: 3,
                   cursor: "pointer",
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontWeight: isCurr ? 900 : 700,
-                  fontSize: 10,
+                  fontSize: 13,
                   letterSpacing: "0.04em",
                   transition: "all 0.2s ease",
                   boxShadow: isCurr ? `0 4px 12px ${T.limeGlow}` : "none"
@@ -1246,7 +1227,7 @@ export default function App() {
           {/* HUD Top Bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 520, margin: "0 auto", width: "100%" }}>
             <div>
-              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 {activeRoutine.title}
               </span>
               <div style={{ fontSize: 13, fontWeight: 800, color: T.textDeep }}>
@@ -1282,9 +1263,8 @@ export default function App() {
                   border: `1px solid ${T.border}`,
                   borderRadius: 12,
                   padding: "0 12px",
-                  fontSize: 12,
+                  fontSize: 13,
                   fontFamily: "'Bebas Neue', sans-serif",
-                  fontWeight: 800,
                   color: T.textMuted,
                   cursor: "pointer"
                 }}
@@ -1350,9 +1330,8 @@ export default function App() {
                           background: isWork ? T.lime : T.bgSubtle,
                           color: T.textDeep,
                           fontFamily: "'Bebas Neue', sans-serif",
-                          fontSize: 11,
-                          fontWeight: 900,
-                          padding: "3px 10px",
+                          fontSize: 14,
+                          padding: "2px 10px",
                           borderRadius: 8,
                           marginBottom: 4,
                           letterSpacing: "0.05em"
@@ -1380,7 +1359,7 @@ export default function App() {
                   {/* Current Movement Card */}
                   <div className="icy-card" style={{ padding: 20, marginBottom: 14 }}>
                     <div style={{ fontSize: 34, marginBottom: 6 }}>{currentStep.illustration || (isWork ? "🔥" : "🍃")}</div>
-                    <h2 style={{ fontSize: 24, fontWeight: 900, color: T.textDeep, marginBottom: 4 }}>
+                    <h2 style={{ fontSize: 26, color: T.textDeep, marginBottom: 4 }}>
                       {currentStep.title}
                     </h2>
                     {currentStep.target && (
@@ -1412,7 +1391,7 @@ export default function App() {
               type="button"
               onClick={() => setIsPaused(!isPaused)}
               className={isPaused ? "btn-lime" : "btn-raspberry"}
-              style={{ flex: 1, padding: "14px 0", fontSize: 15 }}
+              style={{ flex: 1, padding: "14px 0", fontSize: 18 }}
             >
               {isPaused ? "▶️ RESUME BATTLE" : "⏸️ PAUSE BATTLE"}
             </button>
@@ -1425,9 +1404,9 @@ export default function App() {
                 borderRadius: 14,
                 padding: "14px 22px",
                 fontFamily: "'Bebas Neue', sans-serif",
-                fontWeight: 800,
                 color: T.textDeep,
-                fontSize: 14,
+                fontSize: 16,
+                letterSpacing: "0.04em",
                 cursor: "pointer"
               }}
             >
@@ -1481,7 +1460,7 @@ export default function App() {
             }}
           >
             <div style={{ fontSize: 58, marginBottom: 10 }}>🏆</div>
-            <h2 style={{ fontSize: 24, fontWeight: 900, color: T.textDeep, marginBottom: 6 }}>
+            <h2 style={{ fontSize: 26, color: T.textDeep, marginBottom: 6 }}>
               VICTORY! FLATBELLY BATTLE WON
             </h2>
             <p style={{ fontSize: 14, color: T.textMuted, marginBottom: 20 }}>
@@ -1505,7 +1484,7 @@ export default function App() {
             >
               <span style={{ fontSize: 38 }}>🏅</span>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, fontWeight: 900, color: T.textDeep }}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: T.textDeep }}>
                   {victoryModal.medalsGained > 0 ? "+1 FLATBELLY MEDAL!" : "DAILY MEDAL SECURED"}
                 </div>
                 <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
@@ -1523,7 +1502,7 @@ export default function App() {
                   setActiveTab("rewards");
                 }}
                 className="btn-lime"
-                style={{ width: "100%", fontSize: 15 }}
+                style={{ width: "100%", fontSize: 16 }}
               >
                 🎁 VISIT SPOILS ARMORY
               </button>
@@ -1531,7 +1510,7 @@ export default function App() {
                 type="button"
                 onClick={() => setVictoryModal(null)}
                 className="btn-raspberry"
-                style={{ width: "100%", fontSize: 14 }}
+                style={{ width: "100%", fontSize: 15 }}
               >
                 ⚔️ RETURN TO WAR ROOM
               </button>
@@ -1587,7 +1566,7 @@ function AddRewardModal({ onClose, onAdd }) {
       }}
     >
       <div className="icy-card" style={{ maxWidth: 390, width: "100%", padding: 24 }}>
-        <h3 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
+        <h3 style={{ fontSize: 22, color: T.textDeep, marginBottom: 14 }}>
           ➕ ADD NEW WISHLIST REWARD
         </h3>
 
@@ -1658,8 +1637,8 @@ function AddRewardModal({ onClose, onAdd }) {
                   flex: 1,
                   padding: "8px 0",
                   borderRadius: 10,
-                  fontSize: 13,
-                  fontWeight: 800,
+                  fontSize: 16,
+                  fontFamily: "'Bebas Neue', sans-serif",
                   background: cost === amt ? T.lime : T.bgSubtle,
                   color: T.textDeep,
                   border: cost === amt ? `1px solid ${T.limeHover}` : `1px solid ${T.border}`,
@@ -1684,8 +1663,8 @@ function AddRewardModal({ onClose, onAdd }) {
               border: `1px solid ${T.border}`,
               background: "transparent",
               color: T.textMuted,
-              fontWeight: 700,
-              fontSize: 14,
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 16,
               cursor: "pointer"
             }}
           >
@@ -1696,7 +1675,7 @@ function AddRewardModal({ onClose, onAdd }) {
             onClick={() => onAdd({ title, cost, emoji })}
             disabled={!title.trim()}
             className="btn-lime"
-            style={{ flex: 1, fontSize: 14 }}
+            style={{ flex: 1, fontSize: 16 }}
           >
             ADD REWARD
           </button>
@@ -1731,7 +1710,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
       }}
     >
       <div className="icy-card" style={{ maxWidth: 380, width: "100%", padding: 24 }}>
-        <h3 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
+        <h3 style={{ fontSize: 22, color: T.textDeep, marginBottom: 14 }}>
           📏 LOG NAVEL WAISTLINE
         </h3>
 
@@ -1796,8 +1775,8 @@ function WaistModal({ onClose, onSave, todayStr }) {
               border: `1px solid ${T.border}`,
               background: "transparent",
               color: T.textMuted,
-              fontWeight: 700,
-              fontSize: 14,
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 16,
               cursor: "pointer"
             }}
           >
@@ -1808,7 +1787,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
             onClick={() => onSave({ waistCm, weightKg, notes })}
             disabled={!waistCm}
             className="btn-lime"
-            style={{ flex: 1, fontSize: 14 }}
+            style={{ flex: 1, fontSize: 16 }}
           >
             SAVE RECORD
           </button>
