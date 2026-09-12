@@ -8,18 +8,18 @@
   --bg-icy-light: #FFF8FA;
   --bg-icy-deep: #F9E2EB;
   
-  --raspberry-deep: #6E0E2E;
+  --raspberry-deep: #680C2B;
   --raspberry-main: #961B48;
   --raspberry-bright: #D42B66;
   --raspberry-dim: rgba(150, 27, 72, 0.08);
-  --raspberry-border: rgba(150, 27, 72, 0.16);
+  --raspberry-border: rgba(150, 27, 72, 0.14);
 
   --lime-punch: #BCE300;
   --lime-hover: #A6C900;
   --lime-glow: rgba(188, 227, 0, 0.45);
   --lime-dim: rgba(188, 227, 0, 0.16);
 
-  --white-card: rgba(255, 255, 255, 0.88);
+  --white-card: rgba(255, 255, 255, 0.90);
   --white-solid: #FFFFFF;
 }
 
@@ -33,20 +33,32 @@
 body {
   background-color: var(--bg-icy-pink);
   color: var(--raspberry-main);
-  font-family: 'Plus Jakarta Sans', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Designer Headings */
+h1, h2, h3, h4, .font-syne {
+  font-family: 'Syne', sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Glassmorphism Cards */
 .icy-card {
   background: var(--white-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid var(--raspberry-border);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(150, 27, 72, 0.05);
+  border-radius: 22px;
+  box-shadow: 0 10px 32px rgba(150, 27, 72, 0.05);
 }
 
 .icy-card-hover {
@@ -60,16 +72,18 @@ body {
 .btn-lime {
   background: var(--lime-punch);
   color: var(--raspberry-deep);
+  font-family: 'Syne', sans-serif;
   font-weight: 800;
   border: none;
   border-radius: 16px;
-  padding: 14px 20px;
+  padding: 14px 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 6px 18px var(--lime-glow);
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 20px var(--lime-glow);
   transition: all 0.2s ease;
 }
 .btn-lime:hover {
@@ -84,10 +98,12 @@ body {
 .btn-raspberry {
   background: var(--raspberry-main);
   color: #FFFFFF;
-  font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
   border: none;
   border-radius: 14px;
-  padding: 10px 18px;
+  padding: 11px 20px;
+  letter-spacing: 0.02em;
   cursor: pointer;
   transition: all 0.2s ease;
 }

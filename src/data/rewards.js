@@ -1,8 +1,8 @@
-// The War of FlatBelly - Default Self-Reward Store Items
+// The War of FlatBelly - Default Self-Reward Store Items (English)
 export const INITIAL_REWARDS = [
   {
     id: "rew_1",
-    title: "喝一杯手搖微糖鮮奶茶",
+    title: "Iced Milk Tea with Boba",
     emoji: "🧋",
     cost: 3,
     category: "drink",
@@ -10,7 +10,7 @@ export const INITIAL_REWARDS = [
   },
   {
     id: "rew_2",
-    title: "無罪惡感痛快打電動 / 追劇 2 小時",
+    title: "Guilt-Free Gaming / Binge-Watch (2h)",
     emoji: "🎮",
     cost: 5,
     category: "entertainment",
@@ -18,7 +18,7 @@ export const INITIAL_REWARDS = [
   },
   {
     id: "rew_3",
-    title: "週末犒賞豪華壽司 / 燒肉大餐",
+    title: "Lavish Sushi or BBQ Feast",
     emoji: "🍣",
     cost: 10,
     category: "food",
@@ -26,7 +26,7 @@ export const INITIAL_REWARDS = [
   },
   {
     id: "rew_4",
-    title: "添購一件心儀運動裝備 / 酷鞋",
+    title: "Fresh Running Shoes or Workout Gear",
     emoji: "👟",
     cost: 30,
     category: "shopping",
@@ -34,7 +34,7 @@ export const INITIAL_REWARDS = [
   },
   {
     id: "rew_5",
-    title: "放假給自己安排一趟放鬆度假",
+    title: "Weekend Getaway Vacation Trip",
     emoji: "🏖️",
     cost: 100,
     category: "vacation",

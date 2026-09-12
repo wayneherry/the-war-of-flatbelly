@@ -87,7 +87,7 @@ function triggerConfetti(canvas) {
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.45; // gravity
+      p.vy += 0.45;
       p.rotation += p.vRot;
       p.opacity -= 0.012;
       if (p.opacity > 0) {
@@ -175,7 +175,7 @@ export default function App() {
   const [isPaused, setIsPaused] = useState(false);
 
   // Modals
-  const [victoryModal, setVictoryModal] = useState(null); // { medalsGained: number, alreadyDone: boolean }
+  const [victoryModal, setVictoryModal] = useState(null);
   const [showAddReward, setShowAddReward] = useState(false);
   const [showWaistModal, setShowWaistModal] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
@@ -253,11 +253,9 @@ export default function App() {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          // Advance to next step
           advanceStep();
           return 0;
         }
-        // Beep at 3, 2, 1
         if (prev <= 4 && prev > 1) {
           sound.playBeep(prev === 2 ? 800 : 600, 0.1);
         }
@@ -281,7 +279,6 @@ export default function App() {
         sound.playRestChime();
       }
     } else {
-      // Workout Finished!
       finishWorkout();
     }
   }
@@ -326,7 +323,7 @@ export default function App() {
   // ─── Reward Redemption Handlers ─────────────────────────────────────────────
   function handleRedeem(reward) {
     if (medals.balance < reward.cost) {
-      say(`戰功勳章不足！還差 ${reward.cost - medals.balance} 枚 🏅`);
+      say(`Not enough medals! Need ${reward.cost - medals.balance} more 🏅`);
       return;
     }
 
@@ -346,7 +343,7 @@ export default function App() {
       timestamp: Date.now()
     };
     setRedemptions(p => [redemptionRecord, ...p]);
-    say(`🎉 成功兌換：「${reward.title}」！去享受您的犒賞吧！`);
+    say(`🎉 Redeemed: "${reward.title}"! Enjoy your reward!`);
   }
 
   function handleAddReward(newItem) {
@@ -362,12 +359,12 @@ export default function App() {
       }
     ]);
     setShowAddReward(false);
-    say("✨ 願望獎勵已成功加入軍需清單！");
+    say("✨ New reward added to Wishlist!");
   }
 
   function handleDeleteReward(id) {
     setRewards(p => p.filter(r => r.id !== id));
-    say("已刪除該項獎勵。");
+    say("Reward deleted.");
   }
 
   // ─── Waistline Handlers ─────────────────────────────────────────────────────
@@ -382,13 +379,14 @@ export default function App() {
     };
     setWaistLogs(p => [item, ...p]);
     setShowWaistModal(false);
-    say("📏 圍度記錄已更新！平肚進化中！");
+    say("📏 Measurement recorded! FlatBelly in progress!");
   }
 
+  // ─── Reset & Delete Handlers ────────────────────────────────────────────────
   function handleDeleteHistory(id) {
     const item = history.find(h => h.id === id);
     if (!item) return;
-    if (!confirm(`確定要刪除「${item.routineTitle}」這筆測試紀錄嗎？`)) return;
+    if (!confirm(`Delete test record "${item.routineTitle}"?`)) return;
 
     if (item.medalsAwarded > 0) {
       setMedals(p => ({
@@ -397,11 +395,11 @@ export default function App() {
       }));
     }
     setHistory(p => p.filter(h => h.id !== id));
-    say("已刪除該筆測試紀錄，勳章已扣回！");
+    say("Test record removed. Medal deducted.");
   }
 
   function handleResetAllData() {
-    if (!confirm("確定要將所有測試作戰紀錄與勳章歸零重設嗎？")) return;
+    if (!confirm("Are you sure you want to clear all test records and reset medals to 0?")) return;
     setMedals({ balance: 0, total: 0 });
     setHistory([]);
     setRedemptions([]);
@@ -410,7 +408,7 @@ export default function App() {
       localStorage.removeItem("flatbelly_history");
       localStorage.removeItem("flatbelly_redemptions");
     } catch (e) {}
-    say("✅ 勳章與測試紀錄已歸零！");
+    say("✅ All medals and workout history have been reset!");
   }
 
   // ─── Data Export / Import ───────────────────────────────────────────────────
@@ -431,7 +429,7 @@ export default function App() {
     a.download = `FlatBellyWar_Backup_${todayStr}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    say("📥 備份檔案已成功匯出下載！");
+    say("📥 Backup file downloaded successfully!");
   }
 
   function handleImportData(e) {
@@ -446,9 +444,9 @@ export default function App() {
         if (d.rewards) setRewards(d.rewards);
         if (d.redemptions) setRedemptions(d.redemptions);
         if (d.waistLogs) setWaistLogs(d.waistLogs);
-        say("✅ 備份資料已順利還原！");
+        say("✅ Backup data restored!");
       } catch (err) {
-        say("⚠️ 檔案格式錯誤，還原失敗。");
+        say("⚠️ Invalid backup file.");
       }
     };
     reader.readAsText(file);
@@ -472,7 +470,7 @@ export default function App() {
             zIndex: 99999,
             background: T.textDeep,
             color: "#FFFFFF",
-            padding: "12px 22px",
+            padding: "12px 24px",
             borderRadius: 30,
             fontSize: 14,
             fontWeight: 700,
@@ -510,11 +508,12 @@ export default function App() {
                 style={{
                   background: T.lime,
                   color: T.textDeep,
+                  fontFamily: "'Syne', sans-serif",
                   fontWeight: 900,
-                  fontSize: 11,
-                  padding: "3px 7px",
+                  fontSize: 10,
+                  padding: "3px 8px",
                   borderRadius: 6,
-                  letterSpacing: 0.8
+                  letterSpacing: "0.08em"
                 }}
               >
                 WAR FOR FITNESS
@@ -525,12 +524,12 @@ export default function App() {
             </div>
             <h1
               style={{
-                fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', sans-serif",
-                fontSize: 20,
-                fontWeight: 800,
+                fontFamily: "'Syne', sans-serif",
+                fontSize: 21,
+                fontWeight: 900,
                 color: T.textDeep,
-                letterSpacing: -0.5,
-                lineHeight: 1.2,
+                letterSpacing: "-0.03em",
+                lineHeight: 1.15,
                 marginTop: 2
               }}
             >
@@ -551,11 +550,11 @@ export default function App() {
                 alignItems: "center",
                 gap: 5
               }}
-              title="隔日寬限連勝：每1~2天運動一次即可維持！"
+              title="Every-other-day grace rule: Workout every 1-2 days to keep your streak!"
             >
               <span style={{ fontSize: 16 }}>🔥</span>
-              <span style={{ fontWeight: 800, fontSize: 14, color: T.textDeep }}>{streak}</span>
-              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>連勝</span>
+              <span className="font-num" style={{ fontWeight: 800, fontSize: 15, color: T.textDeep }}>{streak}</span>
+              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800 }}>STREAK</span>
             </div>
 
             {/* Medals Wallet Badge */}
@@ -571,6 +570,7 @@ export default function App() {
                 display: "flex",
                 alignItems: "center",
                 gap: 5,
+                fontFamily: "'Syne', sans-serif",
                 fontWeight: 900,
                 fontSize: 14,
                 cursor: "pointer",
@@ -579,7 +579,7 @@ export default function App() {
               }}
             >
               <span style={{ fontSize: 16 }}>🏅</span>
-              <span>{medals.balance}</span>
+              <span className="font-num">{medals.balance}</span>
             </button>
 
             {/* Audio Toggle */}
@@ -587,21 +587,21 @@ export default function App() {
               type="button"
               onClick={() => {
                 setSoundOn(!soundOn);
-                say(soundOn ? "靜音模式" : "音效已開啟 🔊");
+                say(soundOn ? "Muted" : "Sound Enabled 🔊");
               }}
               style={{
-                background: "rgba(255, 255, 255, 0.8)",
+                background: "rgba(255, 255, 255, 0.85)",
                 border: `1px solid ${T.border}`,
                 borderRadius: 12,
-                width: 34,
-                height: 34,
+                width: 36,
+                height: 36,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
                 fontSize: 15
               }}
-              title="切換音效"
+              title="Toggle Audio"
             >
               {soundOn ? "🔊" : "🔇"}
             </button>
@@ -610,66 +610,68 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{ maxWidth: 640, margin: "0 auto", padding: "18px 16px 30px" }}>
-        {/* ─── TAB 1: WAR ROOM (今日作戰) ─────────────────────────────────── */}
+      <main style={{ maxWidth: 640, margin: "0 auto", padding: "20px 16px 32px" }}>
+        {/* ─── TAB 1: WAR ROOM (Today's Battle) ───────────────────────────── */}
         {activeTab === "battle" && (
           <div>
             {/* Daily Battle Status Banner */}
             <div
               className="icy-card"
               style={{
-                padding: 18,
-                marginBottom: 20,
+                padding: 20,
+                marginBottom: 22,
                 background: completedToday
-                  ? "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(188, 227, 0, 0.15))"
-                  : "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(253, 240, 244, 0.9))",
+                  ? "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(188, 227, 0, 0.16))"
+                  : "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(253, 240, 244, 0.95))",
                 borderColor: completedToday ? T.lime : T.borderStrong
               }}
             >
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
                 <div>
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                     <span
                       style={{
                         background: completedToday ? T.lime : T.textMain,
                         color: completedToday ? T.textDeep : "#FFFFFF",
+                        fontFamily: "'Syne', sans-serif",
                         fontSize: 11,
                         fontWeight: 800,
-                        padding: "3px 8px",
-                        borderRadius: 6
+                        padding: "3px 9px",
+                        borderRadius: 6,
+                        letterSpacing: "0.04em"
                       }}
                     >
-                      {completedToday ? "今日已戰勝 🏆" : "今日戰令生效中 ⚔️"}
+                      {completedToday ? "VICTORY SECURED TODAY 🏆" : "BATTLE DISPATCH ACTIVE ⚔️"}
                     </span>
-                    <span style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
-                      每 1~2 天動一次即可
+                    <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 700 }}>
+                      Every 1-2 Days Grace Window
                     </span>
                   </div>
 
-                  <h2 style={{ fontSize: 18, fontWeight: 800, color: T.textDeep, lineHeight: 1.3 }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textDeep, lineHeight: 1.25 }}>
                     {completedToday
-                      ? "今日平肚戰功已達成！勳章已入袋 🏅"
-                      : "消滅肚腩！今天花 8 分鐘動一下？"}
+                      ? "Today's FlatBelly Medal Earned 🏅"
+                      : "Ready for an 8-minute core blitz today?"}
                   </h2>
-                  <p style={{ fontSize: 13, color: T.textMuted, marginTop: 4 }}>
+                  <p style={{ fontSize: 13, color: T.textMuted, marginTop: 5, lineHeight: 1.45 }}>
                     {completedToday
-                      ? "身體正在持續燃燒脂肪。如果精力充沛，隨時可以加練突破！"
-                      : "不想動也沒關係，即使選擇 3 分鐘躺平模式，也能守住連勝並獲得勳章！"}
+                      ? "Your core is firing and metabolism is surging! Feeling ambitious? Run another blitz anytime!"
+                      : "Zero friction: Even the 3-minute Emergency Bed Save preserves your streak and earns your medal!"}
                   </p>
                 </div>
 
                 <div
                   style={{
-                    width: 56,
-                    height: 56,
+                    width: 58,
+                    height: 58,
                     borderRadius: 18,
                     background: completedToday ? T.lime : T.bgSubtle,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 28,
+                    fontSize: 30,
                     flexShrink: 0,
-                    boxShadow: completedToday ? `0 6px 16px ${T.limeGlow}` : "none"
+                    boxShadow: completedToday ? `0 6px 18px ${T.limeGlow}` : "none"
                   }}
                 >
                   {completedToday ? "🏅" : "⚔️"}
@@ -678,15 +680,15 @@ export default function App() {
             </div>
 
             {/* Battle Routines Selection Title */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: T.textDeep, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>🎯</span> 今日作戰模式選單
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 900, color: T.textDeep, display: "flex", alignItems: "center", gap: 6 }}>
+                <span>🎯</span> SELECT TODAY'S BATTLE ROUTINE
               </h3>
-              <span style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>點擊立即出戰</span>
+              <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800, letterSpacing: "0.04em" }}>ONE-TAP START</span>
             </div>
 
             {/* Routine Cards */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {ROUTINES.map(rt => {
                 const isLazy = rt.id === "emergency_save";
                 return (
@@ -694,21 +696,21 @@ export default function App() {
                     key={rt.id}
                     className="icy-card icy-card-hover"
                     style={{
-                      padding: "18px 20px",
+                      padding: "20px 22px",
                       position: "relative",
                       overflow: "hidden",
-                      border: isLazy ? `1.5px solid ${T.lime}` : `1.5px solid ${T.border}`
+                      border: isLazy ? `2px solid ${T.lime}` : `1.5px solid ${T.border}`
                     }}
                   >
                     {/* Top Badges */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 28 }}>{rt.icon}</span>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ fontSize: 32 }}>{rt.icon}</span>
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: T.textBright, textTransform: "uppercase" }}>
-                            {rt.enTitle}
+                          <div style={{ fontSize: 11, fontWeight: 800, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            {rt.subtitle}
                           </div>
-                          <h4 style={{ fontSize: 18, fontWeight: 800, color: T.textDeep }}>{rt.title}</h4>
+                          <h4 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep }}>{rt.title}</h4>
                         </div>
                       </div>
 
@@ -716,17 +718,19 @@ export default function App() {
                         style={{
                           background: isLazy ? T.lime : T.bgSubtle,
                           color: T.textDeep,
+                          fontFamily: "'Syne', sans-serif",
                           fontWeight: 800,
-                          fontSize: 12,
+                          fontSize: 11,
                           padding: "4px 10px",
-                          borderRadius: 8
+                          borderRadius: 8,
+                          letterSpacing: "0.03em"
                         }}
                       >
                         ⏱️ {rt.badge}
                       </span>
                     </div>
 
-                    <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 16, lineHeight: 1.4 }}>
+                    <p style={{ fontSize: 13, color: T.textMuted, marginBottom: 18, lineHeight: 1.45 }}>
                       {rt.summary}
                     </p>
 
@@ -737,8 +741,8 @@ export default function App() {
                       className={isLazy ? "btn-lime pulse-lime" : "btn-lime"}
                       style={{ width: "100%", fontSize: 15 }}
                     >
-                      <span>⚔️ 立即開始 {rt.title}</span>
-                      <span style={{ fontSize: 12, opacity: 0.8 }}>({rt.durationMinutes} 分鐘)</span>
+                      <span>⚔️ START {rt.title.toUpperCase()}</span>
+                      <span style={{ fontSize: 12, opacity: 0.85 }}>({rt.durationMinutes} MIN)</span>
                     </button>
                   </div>
                 );
@@ -747,55 +751,55 @@ export default function App() {
           </div>
         )}
 
-        {/* ─── TAB 2: REWARDS ARMORY (自我獎勵兌換所) ───────────────────── */}
+        {/* ─── TAB 2: SPOILS ARMORY (Self-Reward Store) ───────────────────── */}
         {activeTab === "rewards" && (
           <div>
             {/* Medal Bank Card */}
             <div
               className="icy-card"
               style={{
-                padding: "24px 20px",
+                padding: "26px 20px",
                 textAlign: "center",
-                marginBottom: 22,
-                background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(188, 227, 0, 0.18))",
+                marginBottom: 24,
+                background: "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(188, 227, 0, 0.18))",
                 borderColor: T.lime
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 800, color: T.textBright, letterSpacing: 1, textTransform: "uppercase" }}>
-                MEDAL TREASURY · 戰利品軍需庫
+              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 900, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                MEDAL TREASURY · EARNED GLORY
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "10px 0" }}>
-                <span style={{ fontSize: 42 }}>🏅</span>
-                <span style={{ fontSize: 52, fontWeight: 900, color: T.textDeep, fontFamily: "'Space Grotesk', sans-serif" }}>
+                <span style={{ fontSize: 44 }}>🏅</span>
+                <span className="font-num" style={{ fontSize: 56, fontWeight: 900, color: T.textDeep, lineHeight: 1 }}>
                   {medals.balance}
                 </span>
-                <span style={{ fontSize: 16, fontWeight: 800, color: T.textMuted, alignSelf: "flex-end", marginBottom: 12 }}>
-                  枚可用勳章
+                <span style={{ fontSize: 15, fontWeight: 800, color: T.textMuted, alignSelf: "flex-end", marginBottom: 10 }}>
+                  MEDALS
                 </span>
               </div>
               <p style={{ fontSize: 13, color: T.textMuted, fontWeight: 600 }}>
-                累計斬獲 {medals.total} 枚 · 每滴流下的汗水，都能名正言順換成快樂！
+                All-Time Earned: <strong>{medals.total}</strong> 🏅 · Every drop of sweat is your currency for joy!
               </p>
             </div>
 
             {/* Wishlist Header & Add Button */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div>
-                <h3 style={{ fontSize: 17, fontWeight: 800, color: T.textDeep }}>🎁 慾望願望清單</h3>
-                <div style={{ fontSize: 12, color: T.textMuted }}>累積勳章解鎖犒賞</div>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep }}>🎁 WISHLIST REWARDS</h3>
+                <div style={{ fontSize: 12, color: T.textMuted }}>Accumulate medals to claim personal treats</div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAddReward(true)}
                 className="btn-raspberry"
-                style={{ fontSize: 13, padding: "8px 14px", display: "inline-flex", alignItems: "center", gap: 4 }}
+                style={{ fontSize: 12, padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: 5 }}
               >
-                <span>➕ 新增願望</span>
+                <span>➕ NEW REWARD</span>
               </button>
             </div>
 
             {/* Rewards Grid */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 26 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 26 }}>
               {rewards.map(item => {
                 const canAfford = medals.balance >= item.cost;
                 const progressPct = Math.min(100, Math.round((medals.balance / item.cost) * 100));
@@ -805,20 +809,20 @@ export default function App() {
                     key={item.id}
                     className="icy-card"
                     style={{
-                      padding: "16px 18px",
+                      padding: "18px 20px",
                       border: canAfford ? `2px solid ${T.lime}` : `1.5px solid ${T.border}`,
-                      boxShadow: canAfford ? `0 6px 20px ${T.limeGlow}` : "none"
+                      boxShadow: canAfford ? `0 8px 24px ${T.limeGlow}` : "none"
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ fontSize: 32 }}>{item.emoji}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <span style={{ fontSize: 34 }}>{item.emoji}</span>
                         <div>
-                          <h4 style={{ fontSize: 16, fontWeight: 800, color: T.textDeep }}>{item.title}</h4>
-                          <div style={{ fontSize: 12, color: T.textMuted, display: "flex", alignItems: "center", gap: 6 }}>
-                            <span>需要 <strong>{item.cost}</strong> 🏅</span>
+                          <h4 style={{ fontSize: 17, fontWeight: 800, color: T.textDeep }}>{item.title}</h4>
+                          <div style={{ fontSize: 12, color: T.textMuted, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                            <span>Requires <strong>{item.cost}</strong> 🏅</span>
                             <span>·</span>
-                            <span>已兌換 {item.redeemedCount || 0} 次</span>
+                            <span>Redeemed {item.redeemedCount || 0} times</span>
                           </div>
                         </div>
                       </div>
@@ -833,10 +837,10 @@ export default function App() {
                             border: "none",
                             color: T.textMuted,
                             cursor: "pointer",
-                            fontSize: 14,
+                            fontSize: 16,
                             padding: 4
                           }}
-                          title="刪除願望"
+                          title="Delete reward"
                         >
                           ✕
                         </button>
@@ -844,7 +848,7 @@ export default function App() {
                     </div>
 
                     {/* Progress Bar */}
-                    <div style={{ background: T.bgSubtle, height: 7, borderRadius: 10, overflow: "hidden", marginBottom: 12 }}>
+                    <div style={{ background: T.bgSubtle, height: 8, borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
                       <div
                         style={{
                           background: canAfford ? T.lime : T.textBright,
@@ -859,7 +863,7 @@ export default function App() {
                     {/* Redeem Action Button */}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 12, fontWeight: 700, color: canAfford ? T.textDeep : T.textMuted }}>
-                        {canAfford ? "✨ 勳章已備足，隨時兌換！" : `還差 ${item.cost - medals.balance} 枚 🏅 (${progressPct}%)`}
+                        {canAfford ? "✨ Medals ready to claim!" : `Need ${item.cost - medals.balance} more 🏅 (${progressPct}%)`}
                       </span>
 
                       <button
@@ -868,7 +872,7 @@ export default function App() {
                         disabled={!canAfford}
                         className={canAfford ? "btn-lime" : ""}
                         style={{
-                          padding: "8px 16px",
+                          padding: "8px 18px",
                           borderRadius: 12,
                           fontSize: 13,
                           fontWeight: 800,
@@ -878,7 +882,7 @@ export default function App() {
                           border: canAfford ? `1px solid ${T.limeHover}` : "none"
                         }}
                       >
-                        {canAfford ? "🎉 立即兌換" : "鎖定中"}
+                        {canAfford ? "🎉 REDEEM NOW" : "LOCKED"}
                       </button>
                     </div>
                   </div>
@@ -887,35 +891,35 @@ export default function App() {
             </div>
 
             {/* Redemption History Section */}
-            <div className="icy-card" style={{ padding: 18 }}>
-              <h4 style={{ fontSize: 15, fontWeight: 800, color: T.textDeep, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>📜</span> 戰利品兌換存摺 ({redemptions.length})
+            <div className="icy-card" style={{ padding: 20 }}>
+              <h4 style={{ fontSize: 16, fontWeight: 900, color: T.textDeep, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                <span>📜</span> SPOILS REDEMPTION VAULT ({redemptions.length})
               </h4>
               {redemptions.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "16px 0", color: T.textMuted, fontSize: 13 }}>
-                  尚未有兌換紀錄，快去運動賺取勳章犒賞自己吧！
+                <div style={{ textAlign: "center", padding: "18px 0", color: T.textMuted, fontSize: 13 }}>
+                  No rewards redeemed yet. Complete workouts to earn medals and treat yourself!
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {redemptions.slice(0, 8).map(rd => (
+                  {redemptions.slice(0, 10).map(rd => (
                     <div
                       key={rd.id}
                       style={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "8px 12px",
+                        padding: "10px 14px",
                         background: T.bgSubtle,
-                        borderRadius: 10,
+                        borderRadius: 12,
                         fontSize: 13
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span>{rd.emoji}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 18 }}>{rd.emoji}</span>
                         <span style={{ fontWeight: 700, color: T.textDeep }}>{rd.title}</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ color: T.textBright, fontWeight: 800 }}>-{rd.cost} 🏅</span>
+                        <span style={{ color: T.textBright, fontWeight: 900 }}>-{rd.cost} 🏅</span>
                         <span style={{ color: T.textMuted, fontSize: 11 }}>{rd.date}</span>
                       </div>
                     </div>
@@ -926,25 +930,25 @@ export default function App() {
           </div>
         )}
 
-        {/* ─── TAB 3: LOGS & WAIST (平肚日誌與圍度) ───────────────────────── */}
+        {/* ─── TAB 3: LOGS & WAIST (Belly Tracker & History) ───────────────── */}
         {activeTab === "logs" && (
           <div>
             {/* Waist Tracker Banner */}
             <div
               className="icy-card"
               style={{
-                padding: 20,
-                marginBottom: 20,
-                background: "linear-gradient(135deg, rgba(255,255,255,0.95), rgba(253, 240, 244, 0.9))"
+                padding: 22,
+                marginBottom: 22,
+                background: "linear-gradient(135deg, rgba(255,255,255,0.96), rgba(253, 240, 244, 0.95))"
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: T.textBright, textTransform: "uppercase" }}>
-                    BELLY TRANSFORMATION · 小腹圍度追蹤
+                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    BELLY TRANSFORMATION · NAVEL WAISTLINE
                   </div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: T.textDeep }}>
-                    {latestWaist ? `${latestWaist} cm` : "尚未登記圍度"}
+                  <h3 className="font-num" style={{ fontSize: 28, fontWeight: 900, color: T.textDeep, marginTop: 2 }}>
+                    {latestWaist ? `${latestWaist} cm` : "No records logged"}
                   </h3>
                 </div>
 
@@ -952,9 +956,9 @@ export default function App() {
                   type="button"
                   onClick={() => setShowWaistModal(true)}
                   className="btn-lime"
-                  style={{ fontSize: 13, padding: "8px 14px" }}
+                  style={{ fontSize: 13, padding: "9px 16px" }}
                 >
-                  <span>📏 記錄新圍度</span>
+                  <span>📏 LOG WAISTLINE</span>
                 </button>
               </div>
 
@@ -964,32 +968,32 @@ export default function App() {
                     background: T.limeDim,
                     border: `1px solid ${T.lime}`,
                     borderRadius: 12,
-                    padding: "8px 14px",
+                    padding: "10px 16px",
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
                     fontSize: 13,
                     color: T.textDeep,
-                    fontWeight: 700
+                    fontWeight: 800
                   }}
                 >
                   <span>🔥</span>
                   <span>
-                    累計進步：{parseFloat(waistDiff) <= 0 ? `縮小了 ${Math.abs(waistDiff)} cm 🎉` : `變化 ${waistDiff} cm`}
+                    Total Progress: {parseFloat(waistDiff) <= 0 ? `Slimmed by ${Math.abs(waistDiff)} cm 🎉` : `Changed ${waistDiff} cm`}
                   </span>
                 </div>
               )}
             </div>
 
             {/* Calendar & Battle History */}
-            <div className="icy-card" style={{ padding: 18, marginBottom: 20 }}>
-              <h4 style={{ fontSize: 15, fontWeight: 800, color: T.textDeep, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>📅</span> 戰役日誌 ({history.length} 次完賽)
+            <div className="icy-card" style={{ padding: 20, marginBottom: 20 }}>
+              <h4 style={{ fontSize: 16, fontWeight: 900, color: T.textDeep, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+                <span>📅</span> BATTLE LOG ({history.length} VICTORIES)
               </h4>
 
               {history.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "20px 0", color: T.textMuted, fontSize: 13 }}>
-                  尚未有出戰紀錄！今天就開始您的第一場平肚戰役吧！
+                <div style={{ textAlign: "center", padding: "24px 0", color: T.textMuted, fontSize: 13 }}>
+                  No battle victories logged yet! Start your first battle in the War Room today!
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1000,17 +1004,17 @@ export default function App() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "10px 14px",
+                        padding: "12px 14px",
                         background: T.bgSubtle,
-                        borderRadius: 12
+                        borderRadius: 14
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: T.textDeep }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: T.textDeep }}>
                           {h.routineTitle}
                         </div>
-                        <div style={{ fontSize: 11, color: T.textMuted }}>
-                          {h.date} · 耗時 {h.durationMinutes} 分鐘
+                        <div style={{ fontSize: 12, color: T.textMuted, marginTop: 2 }}>
+                          {h.date} · {h.durationMinutes} mins
                         </div>
                       </div>
 
@@ -1020,17 +1024,19 @@ export default function App() {
                             style={{
                               background: T.lime,
                               color: T.textDeep,
+                              fontFamily: "'Syne', sans-serif",
                               fontWeight: 900,
-                              fontSize: 12,
-                              padding: "3px 8px",
-                              borderRadius: 6
+                              fontSize: 11,
+                              padding: "4px 9px",
+                              borderRadius: 6,
+                              letterSpacing: "0.03em"
                             }}
                           >
-                            +1 🏅 戰功
+                            +1 🏅 MEDAL
                           </span>
                         ) : (
-                          <span style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
-                            加練燃脂 ⚡
+                          <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800 }}>
+                            EXTRA BURN ⚡
                           </span>
                         )}
                         <button
@@ -1041,10 +1047,10 @@ export default function App() {
                             border: "none",
                             color: T.textMuted,
                             cursor: "pointer",
-                            fontSize: 14,
+                            fontSize: 15,
                             padding: "2px 4px"
                           }}
-                          title="刪除此筆測試紀錄並扣回勳章"
+                          title="Delete test record and revoke medal"
                         >
                           🗑️
                         </button>
@@ -1057,18 +1063,18 @@ export default function App() {
           </div>
         )}
 
-        {/* ─── TAB 4: SETTINGS (系統設定與備份) ───────────────────────────── */}
+        {/* ─── TAB 4: SETTINGS (Preferences & Danger Zone) ────────────────── */}
         {activeTab === "settings" && (
-          <div className="icy-card" style={{ padding: 20 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: T.textDeep, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
-              <span>⚙️</span> 系統設定與資料備份
+          <div className="icy-card" style={{ padding: 22 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+              <span>⚙️</span> PREFERENCES & DATA BACKUP
             </h3>
 
             {/* Sound Switch */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
               <div>
-                <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>伴練計時音效</div>
-                <div style={{ fontSize: 12, color: T.textMuted }}>倒數 3-2-1 嗶嗶聲與換動作哨音</div>
+                <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>Workout Sound Effects</div>
+                <div style={{ fontSize: 12, color: T.textMuted }}>Countdown 3-2-1 beeps, whistle start, and rest chimes</div>
               </div>
               <button
                 type="button"
@@ -1079,58 +1085,59 @@ export default function App() {
                   border: `1px solid ${soundOn ? T.limeHover : T.border}`,
                   borderRadius: 20,
                   padding: "6px 14px",
+                  fontFamily: "'Syne', sans-serif",
                   fontWeight: 800,
-                  fontSize: 13,
+                  fontSize: 12,
                   cursor: "pointer"
                 }}
               >
-                {soundOn ? "🔊 已開啟" : "🔇 已靜音"}
+                {soundOn ? "🔊 ENABLED" : "🔇 MUTED"}
               </button>
             </div>
 
             {/* Streak Rule Info */}
-            <div style={{ padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
+            <div style={{ padding: "16px 0", borderBottom: `1px solid ${T.border}` }}>
               <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15, marginBottom: 4 }}>
-                隔日打卡寬限規則 (Every 1~2 Days)
+                Every-Other-Day Grace Rule (48h Window)
               </div>
               <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>
-                專為「隔一兩天動一次」設計。只要前後兩次作戰相隔在 48 小時內（即昨天或今天有動），連勝紀錄便會持續累計，休兵日完全合法無壓力！
+                Tailored for working out every 1-2 days. As long as your last battle was within 48 hours (yesterday or today), your streak flame stays ablaze—rest days are completely guilt-free!
               </div>
             </div>
 
             {/* Backup & Restore */}
             <div style={{ padding: "16px 0", display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>資料本機備份</div>
+              <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>Local Data Backup</div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   type="button"
                   onClick={handleExportData}
                   className="btn-raspberry"
-                  style={{ flex: 1, fontSize: 13, padding: "10px 0" }}
+                  style={{ flex: 1, fontSize: 12, padding: "10px 0" }}
                 >
-                  📥 匯出備份 JSON
+                  📥 EXPORT BACKUP JSON
                 </button>
 
                 <label
                   className="btn-lime"
-                  style={{ flex: 1, fontSize: 13, padding: "10px 0", textAlign: "center", cursor: "pointer" }}
+                  style={{ flex: 1, fontSize: 12, padding: "10px 0", textAlign: "center", cursor: "pointer" }}
                 >
-                  📤 還原備份
+                  📤 RESTORE BACKUP
                   <input type="file" accept=".json" onChange={handleImportData} style={{ display: "none" }} />
                 </label>
               </div>
               <div style={{ fontSize: 11, color: T.textMuted }}>
-                所有作戰數據、勳章與圍度紀錄皆保存在您的手機本機中，安全無虞、離線秒開。
+                All workout logs, medals, and waistline measurements are saved privately on your device. 100% offline-first and free forever.
               </div>
             </div>
 
             {/* Reset / Clear Test Data Section */}
-            <div style={{ padding: "16px 0", borderTop: `1.5px dashed ${T.border}`, marginTop: 6 }}>
-              <div style={{ fontWeight: 800, color: T.textBright, fontSize: 15, marginBottom: 4 }}>
-                🗑️ 測試紀錄與勳章清除
+            <div style={{ padding: "18px 0", borderTop: `1.5px dashed ${T.border}`, marginTop: 6 }}>
+              <div style={{ fontWeight: 900, color: T.textBright, fontSize: 15, marginBottom: 4 }}>
+                🗑️ DANGER ZONE: CLEAR TEST DATA & RESET MEDALS
               </div>
-              <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 12, lineHeight: 1.4 }}>
-                剛才僅是測試功能？點擊下方按鈕即可將測試產生的作戰歷史與戰功勳章全部歸零，重新乾淨開始！
+              <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.45 }}>
+                Just finished testing the app? Click below to wipe all test workout records and reset your medals back to 0 for a fresh start:
               </div>
               <button
                 type="button"
@@ -1139,10 +1146,12 @@ export default function App() {
                   background: "rgba(212, 43, 102, 0.1)",
                   color: T.textBright,
                   border: `1.5px solid ${T.textBright}`,
-                  borderRadius: 12,
-                  padding: "12px 18px",
-                  fontWeight: 800,
-                  fontSize: 14,
+                  borderRadius: 14,
+                  padding: "13px 18px",
+                  fontFamily: "'Syne', sans-serif",
+                  fontWeight: 900,
+                  fontSize: 13,
+                  letterSpacing: "0.02em",
                   cursor: "pointer",
                   width: "100%",
                   display: "flex",
@@ -1151,7 +1160,7 @@ export default function App() {
                   gap: 8
                 }}
               >
-                <span>🔄 一鍵歸零勳章與作戰紀錄</span>
+                <span>🔄 RESET ALL MEDALS & TEST LOGS</span>
               </button>
             </div>
           </div>
@@ -1179,10 +1188,10 @@ export default function App() {
           }}
         >
           {[
-            { id: "battle", label: "今日作戰", icon: "⚔️" },
-            { id: "rewards", label: "軍需兌換", icon: "🎁" },
-            { id: "logs", label: "平肚日誌", icon: "📊" },
-            { id: "settings", label: "系統設定", icon: "⚙️" }
+            { id: "battle", label: "WAR ROOM", icon: "⚔️" },
+            { id: "rewards", label: "SPOILS", icon: "🎁" },
+            { id: "logs", label: "LOGBOOK", icon: "📊" },
+            { id: "settings", label: "SETTINGS", icon: "⚙️" }
           ].map(tab => {
             const isCurr = activeTab === tab.id;
             return (
@@ -1201,8 +1210,10 @@ export default function App() {
                   alignItems: "center",
                   gap: 3,
                   cursor: "pointer",
-                  fontWeight: isCurr ? 900 : 600,
-                  fontSize: 11,
+                  fontFamily: "'Syne', sans-serif",
+                  fontWeight: isCurr ? 900 : 700,
+                  fontSize: 10,
+                  letterSpacing: "0.04em",
                   transition: "all 0.2s ease",
                   boxShadow: isCurr ? `0 4px 12px ${T.limeGlow}` : "none"
                 }}
@@ -1236,11 +1247,11 @@ export default function App() {
           {/* HUD Top Bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 520, margin: "0 auto", width: "100%" }}>
             <div>
-              <span style={{ fontSize: 11, fontWeight: 800, color: T.textBright, textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 {activeRoutine.title}
               </span>
               <div style={{ fontSize: 13, fontWeight: 800, color: T.textDeep }}>
-                動作 {stepIndex + 1} / {activeRoutine.steps.length}
+                MOVEMENT {stepIndex + 1} OF {activeRoutine.steps.length}
               </div>
             </div>
 
@@ -1263,7 +1274,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm("確定要提前中斷作戰嗎？")) {
+                  if (confirm("Are you sure you want to surrender this battle early?")) {
                     setActiveRoutine(null);
                   }
                 }}
@@ -1272,13 +1283,14 @@ export default function App() {
                   border: `1px solid ${T.border}`,
                   borderRadius: 12,
                   padding: "0 12px",
-                  fontSize: 13,
+                  fontSize: 12,
+                  fontFamily: "'Syne', sans-serif",
                   fontWeight: 800,
                   color: T.textMuted,
                   cursor: "pointer"
                 }}
               >
-                放棄退場
+                SURRENDER
               </button>
             </div>
           </div>
@@ -1338,46 +1350,47 @@ export default function App() {
                         style={{
                           background: isWork ? T.lime : T.bgSubtle,
                           color: T.textDeep,
-                          fontSize: 12,
+                          fontFamily: "'Syne', sans-serif",
+                          fontSize: 11,
                           fontWeight: 900,
                           padding: "3px 10px",
                           borderRadius: 8,
                           marginBottom: 4,
-                          letterSpacing: 0.5
+                          letterSpacing: "0.05em"
                         }}
                       >
-                        {isWork ? "⚡ WORK 燃脂出擊" : "🍃 REST 調息放鬆"}
+                        {isWork ? "⚡ WORK: IGNITE CORE" : "🍃 REST: BREATHE & RECOVER"}
                       </span>
                       <span
+                        className="font-num"
                         style={{
-                          fontSize: 52,
+                          fontSize: 54,
                           fontWeight: 900,
                           color: T.textDeep,
-                          fontFamily: "'Space Grotesk', sans-serif",
                           lineHeight: 1
                         }}
                       >
                         {String(timeLeft).padStart(2, "0")}
                       </span>
-                      <span style={{ fontSize: 12, color: T.textMuted, fontWeight: 700, marginTop: 4 }}>
+                      <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800, letterSpacing: "0.06em", marginTop: 4 }}>
                         SECONDS
                       </span>
                     </div>
                   </div>
 
                   {/* Current Movement Card */}
-                  <div className="icy-card" style={{ padding: 18, marginBottom: 14 }}>
-                    <div style={{ fontSize: 32, marginBottom: 6 }}>{currentStep.illustration || (isWork ? "🔥" : "🍃")}</div>
-                    <h2 style={{ fontSize: 22, fontWeight: 900, color: T.textDeep, marginBottom: 4 }}>
+                  <div className="icy-card" style={{ padding: 20, marginBottom: 14 }}>
+                    <div style={{ fontSize: 34, marginBottom: 6 }}>{currentStep.illustration || (isWork ? "🔥" : "🍃")}</div>
+                    <h2 style={{ fontSize: 24, fontWeight: 900, color: T.textDeep, marginBottom: 4 }}>
                       {currentStep.title}
                     </h2>
                     {currentStep.target && (
                       <div style={{ fontSize: 12, fontWeight: 800, color: T.textBright, marginBottom: 8 }}>
-                        目標部位：{currentStep.target}
+                        Target: {currentStep.target}
                       </div>
                     )}
                     {currentStep.tips && (
-                      <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.4 }}>
+                      <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.45 }}>
                         💡 {currentStep.tips}
                       </p>
                     )}
@@ -1386,7 +1399,7 @@ export default function App() {
                   {/* Next Step Preview */}
                   {stepIndex + 1 < activeRoutine.steps.length && (
                     <div style={{ fontSize: 12, color: T.textMuted }}>
-                      下一動作：<strong>{activeRoutine.steps[stepIndex + 1].title}</strong> ({activeRoutine.steps[stepIndex + 1].duration}秒)
+                      UP NEXT: <strong>{activeRoutine.steps[stepIndex + 1].title}</strong> ({activeRoutine.steps[stepIndex + 1].duration}s)
                     </div>
                   )}
                 </div>
@@ -1400,9 +1413,9 @@ export default function App() {
               type="button"
               onClick={() => setIsPaused(!isPaused)}
               className={isPaused ? "btn-lime" : "btn-raspberry"}
-              style={{ flex: 1, padding: "14px 0", fontSize: 16 }}
+              style={{ flex: 1, padding: "14px 0", fontSize: 15 }}
             >
-              {isPaused ? "▶️ 繼續戰役" : "⏸️ 暫停休息"}
+              {isPaused ? "▶️ RESUME BATTLE" : "⏸️ PAUSE BATTLE"}
             </button>
             <button
               type="button"
@@ -1411,14 +1424,15 @@ export default function App() {
                 background: "rgba(255,255,255,0.9)",
                 border: `1.5px solid ${T.border}`,
                 borderRadius: 14,
-                padding: "14px 20px",
+                padding: "14px 22px",
+                fontFamily: "'Syne', sans-serif",
                 fontWeight: 800,
                 color: T.textDeep,
-                fontSize: 15,
+                fontSize: 14,
                 cursor: "pointer"
               }}
             >
-              ⏭️ 跳過此步
+              ⏭️ SKIP STEP
             </button>
           </div>
         </div>
@@ -1460,43 +1474,43 @@ export default function App() {
             style={{
               maxWidth: 420,
               width: "100%",
-              padding: "32px 24px",
+              padding: "34px 24px",
               textAlign: "center",
               position: "relative",
               border: `2px solid ${T.lime}`,
               boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
             }}
           >
-            <div style={{ fontSize: 56, marginBottom: 10 }}>🏆</div>
+            <div style={{ fontSize: 58, marginBottom: 10 }}>🏆</div>
             <h2 style={{ fontSize: 24, fontWeight: 900, color: T.textDeep, marginBottom: 6 }}>
-              VICTORY! 平肚戰役大獲全勝！
+              VICTORY! FLATBELLY BATTLE WON
             </h2>
             <p style={{ fontSize: 14, color: T.textMuted, marginBottom: 20 }}>
               {victoryModal.medalsGained > 0
-                ? "成功消滅脂肪！今日戰功勳章已入帳！"
-                : "加練成功！汗水正在加速收平小腹！"}
+                ? "Fat eradicated! Your daily battle medal is deposited!"
+                : "Extra burn completed! Sweating away stubborn core fat!"}
             </p>
 
             {/* Medal Award Badge */}
             <div
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.9), rgba(188, 227, 0, 0.25))",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.92), rgba(188, 227, 0, 0.25))",
                 border: `2px solid ${T.lime}`,
                 borderRadius: 18,
-                padding: "16px 20px",
+                padding: "16px 22px",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 12,
+                gap: 14,
                 marginBottom: 24
               }}
             >
-              <span style={{ fontSize: 36 }}>🏅</span>
+              <span style={{ fontSize: 38 }}>🏅</span>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: T.textDeep }}>
-                  {victoryModal.medalsGained > 0 ? "+1 枚戰功勳章！" : "今日勳章已入袋"}
+                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 900, color: T.textDeep }}>
+                  {victoryModal.medalsGained > 0 ? "+1 FLATBELLY MEDAL!" : "DAILY MEDAL SECURED"}
                 </div>
                 <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
-                  目前可用結餘：{medals.balance} 🏅
+                  Current Treasury: {medals.balance} 🏅
                 </div>
               </div>
             </div>
@@ -1510,17 +1524,17 @@ export default function App() {
                   setActiveTab("rewards");
                 }}
                 className="btn-lime"
-                style={{ width: "100%", fontSize: 16 }}
+                style={{ width: "100%", fontSize: 15 }}
               >
-                🎁 前往軍需所兌換獎勵
+                🎁 VISIT SPOILS ARMORY
               </button>
               <button
                 type="button"
                 onClick={() => setVictoryModal(null)}
                 className="btn-raspberry"
-                style={{ width: "100%", fontSize: 15 }}
+                style={{ width: "100%", fontSize: 14 }}
               >
-                ⚔️ 返回作戰指揮部
+                ⚔️ RETURN TO WAR ROOM
               </button>
             </div>
           </div>
@@ -1547,7 +1561,7 @@ export default function App() {
   );
 }
 
-// ─── Modal: Add Custom Reward ────────────────────────────────────────────────
+// ─── Modal: Add Custom Reward (English) ───────────────────────────────────────
 function AddRewardModal({ onClose, onAdd }) {
   const [title, setTitle] = useState("");
   const [cost, setCost] = useState(3);
@@ -1573,15 +1587,15 @@ function AddRewardModal({ onClose, onAdd }) {
         padding: 20
       }}
     >
-      <div className="icy-card" style={{ maxWidth: 390, width: "100%", padding: 22 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
-          ➕ 新增自我獎勵願望
+      <div className="icy-card" style={{ maxWidth: 390, width: "100%", padding: 24 }}>
+        <h3 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
+          ➕ ADD NEW WISHLIST REWARD
         </h3>
 
         {/* Emoji Selector */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            選擇圖示：
+            Select Icon:
           </label>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {emojiOptions.map(em => (
@@ -1608,13 +1622,13 @@ function AddRewardModal({ onClose, onAdd }) {
         {/* Title Input */}
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            願望犒賞名稱：
+            Reward Name / Activity:
           </label>
           <input
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
-            placeholder="例如：喝一杯微糖鮮奶茶、買新球鞋"
+            placeholder="e.g. Iced Bubble Tea, Night Out"
             style={{
               width: "100%",
               padding: "10px 14px",
@@ -1633,7 +1647,7 @@ function AddRewardModal({ onClose, onAdd }) {
         {/* Cost Input */}
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            所需勳章枚數 (🏅)：
+            Required Medals (🏅):
           </label>
           <div style={{ display: "flex", gap: 8 }}>
             {[3, 5, 10, 20, 50].map(amt => (
@@ -1676,7 +1690,7 @@ function AddRewardModal({ onClose, onAdd }) {
               cursor: "pointer"
             }}
           >
-            取消
+            CANCEL
           </button>
           <button
             type="button"
@@ -1685,7 +1699,7 @@ function AddRewardModal({ onClose, onAdd }) {
             className="btn-lime"
             style={{ flex: 1, fontSize: 14 }}
           >
-            確定加入
+            ADD REWARD
           </button>
         </div>
       </div>
@@ -1693,7 +1707,7 @@ function AddRewardModal({ onClose, onAdd }) {
   );
 }
 
-// ─── Modal: Waist Log ────────────────────────────────────────────────────────
+// ─── Modal: Waist Log (English) ──────────────────────────────────────────────
 function WaistModal({ onClose, onSave, todayStr }) {
   const [waistCm, setWaistCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
@@ -1717,21 +1731,21 @@ function WaistModal({ onClose, onSave, todayStr }) {
         padding: 20
       }}
     >
-      <div className="icy-card" style={{ maxWidth: 380, width: "100%", padding: 22 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
-          📏 登記最新小腹圍度
+      <div className="icy-card" style={{ maxWidth: 380, width: "100%", padding: 24 }}>
+        <h3 style={{ fontSize: 19, fontWeight: 900, color: T.textDeep, marginBottom: 14 }}>
+          📏 LOG NAVEL WAISTLINE
         </h3>
 
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            肚臍水平腰圍 (cm) *
+            Navel Horizontal Waist (cm) *
           </label>
           <input
             type="number"
             step="0.1"
             value={waistCm}
             onChange={e => setWaistCm(e.target.value)}
-            placeholder="例如：78.5"
+            placeholder="e.g. 78.5"
             style={{
               width: "100%",
               padding: "10px 14px",
@@ -1749,14 +1763,14 @@ function WaistModal({ onClose, onSave, todayStr }) {
 
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            體重 (kg，選填)：
+            Body Weight (kg, optional):
           </label>
           <input
             type="number"
             step="0.1"
             value={weightKg}
             onChange={e => setWeightKg(e.target.value)}
-            placeholder="例如：65.0"
+            placeholder="e.g. 65.0"
             style={{
               width: "100%",
               padding: "10px 14px",
@@ -1772,7 +1786,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
           />
         </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+        <div style={{ display: "flex", gap: 10, marginTop: 22 }}>
           <button
             type="button"
             onClick={onClose}
@@ -1788,7 +1802,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
               cursor: "pointer"
             }}
           >
-            取消
+            CANCEL
           </button>
           <button
             type="button"
@@ -1797,7 +1811,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
             className="btn-lime"
             style={{ flex: 1, fontSize: 14 }}
           >
-            儲存紀錄
+            SAVE RECORD
           </button>
         </div>
       </div>
