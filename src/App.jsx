@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { ROUTINES } from "./data/routines";
 import { INITIAL_REWARDS } from "./data/rewards";
+import { getTranslation, STEP_TRANSLATIONS } from "./data/i18n";
 import { sound } from "./audio";
 
 // ─── Theme Tokens (Icy Pink + Raspberry Sorbet + Lime Punch) ─────────────────
@@ -117,6 +118,58 @@ export default function App() {
 
   // Selection animation state for the 3 battle options
   const [selectedRoutineId, setSelectedRoutineId] = useState(null);
+
+  // Language State: "zh" | "en"
+  const [lang, setLang] = useState(() => {
+    try {
+      const s = localStorage.getItem("flatbelly_lang");
+      return s || "zh";
+    } catch (e) {
+      return "zh";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("flatbelly_lang", lang);
+    } catch (e) {}
+  }, [lang]);
+
+  const t = (key, params) => getTranslation(lang, key, params);
+
+  function handleToggleLang(newLang) {
+    if (newLang === lang) return;
+    setLang(newLang);
+    say(newLang === "zh" ? "語言已切換為繁體中文 🇹🇼" : "Language switched to English 🇺🇸");
+  }
+
+  function getRoutineTitle(r) {
+    if (!r) return "";
+    if (lang === "zh") {
+      if (r.id === "home_blitz") return "居家核心閃電戰";
+      if (r.id === "outdoor_raid") return "戶外有氧突襲";
+      if (r.id === "quick_save" || r.id === "emergency_save") return "緊急 3 分鐘保命救贖";
+    }
+    return r.title;
+  }
+
+  function getStepInfo(step) {
+    if (!step) return { title: "", target: "", tips: "" };
+    if (lang === "zh" && STEP_TRANSLATIONS.zh[step.title]) {
+      const tr = STEP_TRANSLATIONS.zh[step.title];
+      return {
+        title: tr.title || step.title,
+        target: tr.target || step.target,
+        tips: tr.tips || step.tips
+      };
+    }
+    return {
+      title: step.title,
+      target: step.target,
+      tips: step.tips
+    };
+  }
+
 
   // State with Local-First persistence
   const [medals, setMedals] = useState(() => {
@@ -435,18 +488,6 @@ export default function App() {
     say("Test record removed. Medal deducted.");
   }
 
-  function handleResetAllData() {
-    if (!confirm("Are you sure you want to clear all test records and reset medals to 0?")) return;
-    setMedals({ balance: 0, total: 0 });
-    setHistory([]);
-    setRedemptions([]);
-    try {
-      localStorage.removeItem("flatbelly_medals");
-      localStorage.removeItem("flatbelly_history");
-      localStorage.removeItem("flatbelly_redemptions");
-    } catch (e) {}
-    say("✅ All medals and workout history have been reset!");
-  }
 
   // ─── Data Export / Import ───────────────────────────────────────────────────
   function handleExportData() {
@@ -594,7 +635,7 @@ export default function App() {
                   letterSpacing: "0.06em"
                 }}
               >
-                WAR FOR FITNESS
+                {t("war_for_fitness")}
               </span>
               <span style={{ fontSize: 10, color: T.textMuted, fontWeight: 700 }}>
                 {todayStr}
@@ -611,7 +652,7 @@ export default function App() {
                 whiteSpace: "nowrap"
               }}
             >
-              The War of FlatBelly
+              {t("app_title")}
             </h1>
           </div>
 
@@ -628,7 +669,7 @@ export default function App() {
                 alignItems: "center",
                 gap: 4
               }}
-              title="Every-other-day grace rule: Workout every 1-2 days to keep your streak!"
+              title={t("streak_tooltip")}
             >
               <span style={{ fontSize: 14 }}>🔥</span>
               <span className="font-num" style={{ fontWeight: 800, fontSize: 16, color: T.textDeep }}>{streak}</span>
@@ -664,7 +705,7 @@ export default function App() {
               type="button"
               onClick={() => {
                 setSoundOn(!soundOn);
-                say(soundOn ? "Muted" : "Sound Enabled 🔊");
+                say(soundOn ? t("toast_sound_muted") : t("toast_sound_enabled"));
               }}
               style={{
                 background: "rgba(255, 255, 255, 0.85)",
@@ -678,7 +719,7 @@ export default function App() {
                 cursor: "pointer",
                 fontSize: 14
               }}
-              title="Toggle Audio"
+              title={t("toggle_audio")}
             >
               {soundOn ? "🔊" : "🔇"}
             </button>
@@ -738,11 +779,11 @@ export default function App() {
                 const isOtherSelected = selectedRoutineId !== null && !isSelected;
 
                 const routineTitleText =
-                  rt.id === "emergency_save"
-                    ? "EMERGENCY 3-MIN SAVE"
+                  rt.id === "emergency_save" || rt.id === "quick_save"
+                    ? (lang === "zh" ? "緊急 3 分鐘保命救贖" : "EMERGENCY 3-MIN SAVE")
                     : rt.id === "home_blitz"
-                    ? "HOME CORE BLITZ"
-                    : "OUTDOOR CARDIO RAID";
+                    ? (lang === "zh" ? "居家核心閃電戰" : "HOME CORE BLITZ")
+                    : (lang === "zh" ? "戶外有氧突襲" : "OUTDOOR CARDIO RAID");
 
                 return (
                   <div
@@ -782,9 +823,10 @@ export default function App() {
                   >
                     <div
                       style={{
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: "clamp(26px, 7vw, 40px)",
-                        letterSpacing: "0.05em",
+                        fontFamily: "'Bebas Neue', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif",
+                        fontSize: lang === "zh" ? "clamp(20px, 5.8vw, 30px)" : "clamp(24px, 6.8vw, 38px)",
+                        fontWeight: 900,
+                        letterSpacing: lang === "zh" ? "0.08em" : "0.05em",
                         lineHeight: 1.05,
                         color: T.textDeep,
                         whiteSpace: "nowrap"
@@ -814,7 +856,7 @@ export default function App() {
               }}
             >
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                MEDAL TREASURY · EARNED GLORY
+                {t("treasury_title")}
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "10px 0" }}>
                 <span style={{ fontSize: 44 }}>🏅</span>
@@ -822,19 +864,19 @@ export default function App() {
                   {medals.balance}
                 </span>
                 <span style={{ fontSize: 15, fontWeight: 800, color: T.textMuted, alignSelf: "flex-end", marginBottom: 10 }}>
-                  MEDALS
+                  {t("medals_label")}
                 </span>
               </div>
               <p style={{ fontSize: 13, color: T.textMuted, fontWeight: 600 }}>
-                All-Time Earned: <strong>{medals.total}</strong> 🏅 · Every drop of sweat is your currency for joy!
+                {t("all_time_earned")} <strong>{medals.total}</strong> 🏅 · {t("sweat_currency")}
               </p>
             </div>
 
             {/* Wishlist Header & Add Button */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
               <div style={{ minWidth: 160, flex: 1 }}>
-                <h3 style={{ fontSize: 20, color: T.textDeep, margin: 0 }}>🎁 WISHLIST REWARDS</h3>
-                <div style={{ fontSize: 11, color: T.textMuted }}>Earn medals & redeem joyful treats</div>
+                <h3 style={{ fontSize: 20, color: T.textDeep, margin: 0 }}>🎁 {t("wishlist_title")}</h3>
+                <div style={{ fontSize: 11, color: T.textMuted }}>{t("wishlist_subtitle")}</div>
               </div>
               <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
                 <button
@@ -853,7 +895,7 @@ export default function App() {
                   }}
                   title="Reset to default items"
                 >
-                  ↺ RESET
+                  {t("btn_reset")}
                 </button>
                 <button
                   type="button"
@@ -864,7 +906,7 @@ export default function App() {
                   className="btn-raspberry"
                   style={{ fontSize: 12, padding: "6px 12px", display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}
                 >
-                  <span>➕ NEW</span>
+                  <span>{t("btn_new")}</span>
                 </button>
               </div>
             </div>
@@ -891,9 +933,9 @@ export default function App() {
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <h4 style={{ fontSize: 16, color: T.textDeep, wordBreak: "break-word", lineHeight: 1.15, margin: 0 }}>{item.title}</h4>
                           <div style={{ fontSize: 11, color: T.textMuted, display: "flex", alignItems: "center", gap: 5, marginTop: 2, flexWrap: "wrap" }}>
-                            <span>Cost: <strong>{item.cost}</strong> 🏅</span>
+                            <span>{t("card_cost")} <strong>{item.cost}</strong> 🏅</span>
                             <span>·</span>
-                            <span>Redeemed: {item.redeemedCount || 0}</span>
+                            <span>{t("card_redeemed")} {item.redeemedCount || 0}</span>
                           </div>
                         </div>
                       </div>
@@ -964,7 +1006,7 @@ export default function App() {
                     {/* Redeem Action Button */}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: canAfford ? T.textDeep : T.textMuted, minWidth: 120, flex: 1 }}>
-                        {canAfford ? "✨ Medals ready to claim!" : `Need ${item.cost - medals.balance} more 🏅 (${progressPct}%)`}
+                        {canAfford ? t("ready_to_claim") : t("need_more_medals", { n: item.cost - medals.balance, pct: progressPct })}
                       </span>
 
                       <button
@@ -984,7 +1026,7 @@ export default function App() {
                           flexShrink: 0
                         }}
                       >
-                        {canAfford ? "🎉 REDEEM NOW" : `🔒 NEED ${item.cost - medals.balance} 🏅`}
+                        {canAfford ? t("btn_redeem_now") : t("btn_need_medals", { n: item.cost - medals.balance })}
                       </button>
                     </div>
                   </div>
@@ -999,7 +1041,7 @@ export default function App() {
               </h4>
               {redemptions.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "18px 0", color: T.textMuted, fontSize: 13 }}>
-                  No rewards redeemed yet. Complete workouts to earn medals and treat yourself!
+                  {t("no_rewards_redeemed")}
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1047,10 +1089,10 @@ export default function App() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div>
                   <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                    BELLY TRANSFORMATION · NAVEL WAISTLINE
+                    {t("belly_transformation")}
                   </div>
                   <h3 className="font-num" style={{ fontSize: 34, color: T.textDeep, letterSpacing: "0.03em", marginTop: 2 }}>
-                    {latestWaist ? `${latestWaist} cm` : "No records logged"}
+                    {latestWaist ? `${latestWaist} cm` : t("no_waist_records")}
                   </h3>
                 </div>
 
@@ -1060,7 +1102,7 @@ export default function App() {
                   className="btn-lime"
                   style={{ fontSize: 14, padding: "8px 16px" }}
                 >
-                  <span>📏 LOG WAISTLINE</span>
+                  <span>{t("btn_log_waist")}</span>
                 </button>
               </div>
 
@@ -1081,7 +1123,7 @@ export default function App() {
                 >
                   <span>🔥</span>
                   <span>
-                    Total Progress: {parseFloat(waistDiff) <= 0 ? `Slimmed by ${Math.abs(waistDiff)} cm 🎉` : `Changed ${waistDiff} cm`}
+                    {t("total_progress")} {parseFloat(waistDiff) <= 0 ? t("slimmed_by", { cm: Math.abs(waistDiff) }) : t("waist_changed", { cm: waistDiff })}
                   </span>
                 </div>
               )}
@@ -1090,12 +1132,12 @@ export default function App() {
             {/* Calendar & Battle History */}
             <div className="icy-card" style={{ padding: 20, marginBottom: 20 }}>
               <h4 style={{ fontSize: 18, color: T.textDeep, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
-                <span>📅</span> BATTLE LOG ({history.length} VICTORIES)
+                <span>📅</span> {t("battle_log_title", { count: history.length })}
               </h4>
 
               {history.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "24px 0", color: T.textMuted, fontSize: 13 }}>
-                  No battle victories logged yet! Start your first battle in the War Room today!
+                  {t("no_victories_logged")}
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1116,7 +1158,7 @@ export default function App() {
                           {h.routineTitle}
                         </div>
                         <div style={{ fontSize: 12, color: T.textMuted, marginTop: 2 }}>
-                          {h.date} · {h.durationMinutes} mins
+                          {h.date} · {h.durationMinutes} {t("mins_unit")}
                         </div>
                       </div>
 
@@ -1133,11 +1175,11 @@ export default function App() {
                               letterSpacing: "0.03em"
                             }}
                           >
-                            +1 🏅 MEDAL
+                            {t("medal_awarded_badge")}
                           </span>
                         ) : (
                           <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800 }}>
-                            EXTRA BURN ⚡
+                            {t("extra_burn_badge")}
                           </span>
                         )}
                         <button
@@ -1151,7 +1193,7 @@ export default function App() {
                             fontSize: 15,
                             padding: "2px 4px"
                           }}
-                          title="Delete test record and revoke medal"
+                          title={t("remove_log_btn")}
                         >
                           🗑️
                         </button>
@@ -1164,22 +1206,73 @@ export default function App() {
           </div>
         )}
 
-        {/* ─── TAB 4: SETTINGS (Preferences & Danger Zone) ────────────────── */}
+        {/* ─── TAB 4: SETTINGS (Preferences & Localization) ────────────────── */}
         {activeTab === "settings" && (
           <div className="icy-card" style={{ padding: 22 }}>
             <h3 style={{ fontSize: 20, color: T.textDeep, marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
-              <span>⚙️</span> PREFERENCES & DATA BACKUP
+              <span>⚙️</span> {t("settings_title")}
             </h3>
+
+            {/* Display Language Switcher */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
+              <div>
+                <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>
+                  {t("lang_setting_title")}
+                </div>
+                <div style={{ fontSize: 12, color: T.textMuted }}>
+                  {lang === "zh" ? "切換繁體中文與英語介面" : "Switch between Traditional Chinese and English"}
+                </div>
+              </div>
+              <div style={{ display: "flex", background: T.bgSubtle, borderRadius: 14, padding: 3, gap: 2 }}>
+                <button
+                  type="button"
+                  onClick={() => handleToggleLang("zh")}
+                  style={{
+                    border: "none",
+                    background: lang === "zh" ? T.textMain : "transparent",
+                    color: lang === "zh" ? "#FFFFFF" : T.textMuted,
+                    borderRadius: 11,
+                    padding: "6px 12px",
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    transition: "all 0.18s ease"
+                  }}
+                >
+                  🇹🇼 中文
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleToggleLang("en")}
+                  style={{
+                    border: "none",
+                    background: lang === "en" ? T.textMain : "transparent",
+                    color: lang === "en" ? "#FFFFFF" : T.textMuted,
+                    borderRadius: 11,
+                    padding: "6px 12px",
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    transition: "all 0.18s ease"
+                  }}
+                >
+                  🇺🇸 EN
+                </button>
+              </div>
+            </div>
 
             {/* Sound Switch */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: `1px solid ${T.border}` }}>
               <div>
-                <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>Workout Sound Effects</div>
-                <div style={{ fontSize: 12, color: T.textMuted }}>Countdown 3-2-1 beeps, whistle start, and rest chimes</div>
+                <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>{t("sound_setting_title")}</div>
+                <div style={{ fontSize: 12, color: T.textMuted }}>{t("sound_setting_desc")}</div>
               </div>
               <button
                 type="button"
-                onClick={() => setSoundOn(!soundOn)}
+                onClick={() => {
+                  setSoundOn(!soundOn);
+                  say(!soundOn ? t("toast_sound_enabled") : t("toast_sound_muted"));
+                }}
                 style={{
                   background: soundOn ? T.lime : T.bgSubtle,
                   color: T.textDeep,
@@ -1191,23 +1284,23 @@ export default function App() {
                   cursor: "pointer"
                 }}
               >
-                {soundOn ? "🔊 ENABLED" : "🔇 MUTED"}
+                {soundOn ? t("btn_sound_enabled") : t("btn_sound_muted")}
               </button>
             </div>
 
             {/* Streak Rule Info */}
             <div style={{ padding: "16px 0", borderBottom: `1px solid ${T.border}` }}>
               <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15, marginBottom: 4 }}>
-                Every-Other-Day Grace Rule (48h Window)
+                {t("grace_rule_title")}
               </div>
               <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>
-                Tailored for working out every 1-2 days. As long as your last battle was within 48 hours (yesterday or today), your streak flame stays ablaze—rest days are completely guilt-free!
+                {t("grace_rule_desc")}
               </div>
             </div>
 
             {/* Backup & Restore */}
             <div style={{ padding: "16px 0", display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>Local Data Backup</div>
+              <div style={{ fontWeight: 800, color: T.textDeep, fontSize: 15 }}>{t("backup_title")}</div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   type="button"
@@ -1215,52 +1308,20 @@ export default function App() {
                   className="btn-raspberry"
                   style={{ flex: 1, fontSize: 14, padding: "10px 0" }}
                 >
-                  📥 EXPORT BACKUP JSON
+                  {t("btn_export_json")}
                 </button>
 
                 <label
                   className="btn-lime"
                   style={{ flex: 1, fontSize: 14, padding: "10px 0", textAlign: "center", cursor: "pointer" }}
                 >
-                  📤 RESTORE BACKUP
+                  {t("btn_restore_json")}
                   <input type="file" accept=".json" onChange={handleImportData} style={{ display: "none" }} />
                 </label>
               </div>
               <div style={{ fontSize: 11, color: T.textMuted }}>
-                All workout logs, medals, and waistline measurements are saved privately on your device. 100% offline-first and free forever.
+                {t("backup_note")}
               </div>
-            </div>
-
-            {/* Reset / Clear Test Data Section */}
-            <div style={{ padding: "18px 0", borderTop: `1.5px dashed ${T.border}`, marginTop: 6 }}>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: T.textBright, marginBottom: 4 }}>
-                🗑️ DANGER ZONE: CLEAR TEST DATA & RESET MEDALS
-              </div>
-              <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 14, lineHeight: 1.45 }}>
-                Just finished testing the app? Click below to wipe all test workout records and reset your medals back to 0 for a fresh start:
-              </div>
-              <button
-                type="button"
-                onClick={handleResetAllData}
-                style={{
-                  background: "rgba(212, 43, 102, 0.1)",
-                  color: T.textBright,
-                  border: `1.5px solid ${T.textBright}`,
-                  borderRadius: 14,
-                  padding: "13px 18px",
-                  fontFamily: "'Bebas Neue', sans-serif",
-                  fontSize: 16,
-                  letterSpacing: "0.04em",
-                  cursor: "pointer",
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8
-                }}
-              >
-                <span>🔄 RESET ALL MEDALS & TEST LOGS</span>
-              </button>
             </div>
           </div>
         )}
@@ -1346,10 +1407,10 @@ export default function App() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 520, margin: "0 auto", width: "100%" }}>
             <div>
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                {activeRoutine.title}
+                {getRoutineTitle(activeRoutine)}
               </span>
               <div style={{ fontSize: 13, fontWeight: 800, color: T.textDeep }}>
-                MOVEMENT {stepIndex + 1} OF {activeRoutine.steps.length}
+                {t("movement_counter", { current: stepIndex + 1, total: activeRoutine.steps.length })}
               </div>
             </div>
 
@@ -1372,7 +1433,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm("Are you sure you want to surrender this battle early?")) {
+                  if (confirm(t("surrender_confirm"))) {
                     setActiveRoutine(null);
                   }
                 }}
@@ -1387,7 +1448,7 @@ export default function App() {
                   cursor: "pointer"
                 }}
               >
-                SURRENDER
+                {t("surrender_btn")}
               </button>
             </div>
           </div>
@@ -1455,7 +1516,7 @@ export default function App() {
                           letterSpacing: "0.05em"
                         }}
                       >
-                        {isWork ? "⚡ WORK: IGNITE CORE" : "🍃 REST: BREATHE & RECOVER"}
+                        {isWork ? t("work_status") : t("rest_status")}
                       </span>
                       <span
                         className="font-num"
@@ -1469,33 +1530,38 @@ export default function App() {
                         {String(timeLeft).padStart(2, "0")}
                       </span>
                       <span style={{ fontSize: 11, color: T.textMuted, fontWeight: 800, letterSpacing: "0.06em", marginTop: 4 }}>
-                        SECONDS
+                        {t("seconds_label")}
                       </span>
                     </div>
                   </div>
 
                   {/* Current Movement Card */}
-                  <div className="icy-card" style={{ padding: 20, marginBottom: 14 }}>
-                    <div style={{ fontSize: 34, marginBottom: 6 }}>{currentStep.illustration || (isWork ? "🔥" : "🍃")}</div>
-                    <h2 style={{ fontSize: 26, color: T.textDeep, marginBottom: 4 }}>
-                      {currentStep.title}
-                    </h2>
-                    {currentStep.target && (
-                      <div style={{ fontSize: 12, fontWeight: 800, color: T.textBright, marginBottom: 8 }}>
-                        Target: {currentStep.target}
+                  {(() => {
+                    const stepDetails = getStepInfo(currentStep);
+                    return (
+                      <div className="icy-card" style={{ padding: 20, marginBottom: 14 }}>
+                        <div style={{ fontSize: 34, marginBottom: 6 }}>{currentStep.illustration || (isWork ? "🔥" : "🍃")}</div>
+                        <h2 style={{ fontSize: 26, color: T.textDeep, marginBottom: 4 }}>
+                          {stepDetails.title}
+                        </h2>
+                        {stepDetails.target && (
+                          <div style={{ fontSize: 12, fontWeight: 800, color: T.textBright, marginBottom: 8 }}>
+                            {t("target_label")} {stepDetails.target}
+                          </div>
+                        )}
+                        {stepDetails.tips && (
+                          <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.45 }}>
+                            💡 {stepDetails.tips}
+                          </p>
+                        )}
                       </div>
-                    )}
-                    {currentStep.tips && (
-                      <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.45 }}>
-                        💡 {currentStep.tips}
-                      </p>
-                    )}
-                  </div>
+                    );
+                  })()}
 
                   {/* Next Step Preview */}
                   {stepIndex + 1 < activeRoutine.steps.length && (
                     <div style={{ fontSize: 12, color: T.textMuted }}>
-                      UP NEXT: <strong>{activeRoutine.steps[stepIndex + 1].title}</strong> ({activeRoutine.steps[stepIndex + 1].duration}s)
+                      {t("up_next")} <strong>{getStepInfo(activeRoutine.steps[stepIndex + 1]).title}</strong> ({activeRoutine.steps[stepIndex + 1].duration}s)
                     </div>
                   )}
                 </div>
@@ -1511,7 +1577,7 @@ export default function App() {
               className={isPaused ? "btn-lime" : "btn-raspberry"}
               style={{ flex: 1, padding: "14px 0", fontSize: 18 }}
             >
-              {isPaused ? "▶️ RESUME BATTLE" : "⏸️ PAUSE BATTLE"}
+              {isPaused ? t("btn_resume") : t("btn_pause")}
             </button>
             <button
               type="button"
@@ -1579,12 +1645,12 @@ export default function App() {
           >
             <div style={{ fontSize: 58, marginBottom: 10 }}>🏆</div>
             <h2 style={{ fontSize: 26, color: T.textDeep, marginBottom: 6 }}>
-              VICTORY! FLATBELLY BATTLE WON
+              {t("victory_won")}
             </h2>
             <p style={{ fontSize: 14, color: T.textMuted, marginBottom: 20 }}>
               {victoryModal.medalsGained > 0
-                ? "Fat eradicated! Your daily battle medal is deposited!"
-                : "Extra burn completed! Sweating away stubborn core fat!"}
+                ? t("victory_fat_eradicated")
+                : t("victory_extra_burn")}
             </p>
 
             {/* Medal Award Badge */}
@@ -1603,10 +1669,10 @@ export default function App() {
               <span style={{ fontSize: 38 }}>🏅</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: T.textDeep }}>
-                  {victoryModal.medalsGained > 0 ? "+1 FLATBELLY MEDAL!" : "DAILY MEDAL SECURED"}
+                  {victoryModal.medalsGained > 0 ? t("victory_medal_plus_one") : t("victory_medal_secured")}
                 </div>
                 <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
-                  Current Treasury: {medals.balance} 🏅
+                  {t("victory_current_treasury", { balance: medals.balance })}
                 </div>
               </div>
             </div>
@@ -1622,7 +1688,7 @@ export default function App() {
                 className="btn-lime"
                 style={{ width: "100%", fontSize: 16 }}
               >
-                🎁 VISIT SPOILS ARMORY
+                {t("victory_visit_spoils")}
               </button>
               <button
                 type="button"
@@ -1662,7 +1728,7 @@ export default function App() {
 }
 
 // ─── Modal: Add & Edit Wishlist Reward (English) ──────────────────────────────
-function RewardModal({ initialData, onClose, onSave }) {
+function RewardModal({ initialData, onClose, onSave, lang = "zh", t }) {
   const isEditing = Boolean(initialData?.id);
   const [title, setTitle] = useState(initialData?.title || "");
   const [cost, setCost] = useState(initialData?.cost || 3);
@@ -1704,14 +1770,14 @@ function RewardModal({ initialData, onClose, onSave }) {
     >
       <div className="icy-card" style={{ maxWidth: 410, width: "100%", padding: "26px 22px" }}>
         <h3 style={{ fontSize: 22, color: T.textDeep, marginBottom: 14 }}>
-          {isEditing ? "✏️ EDIT WISHLIST REWARD" : "➕ ADD NEW WISHLIST REWARD"}
+          {isEditing ? (t ? t("modal_edit_title") : "✏️ EDIT WISHLIST REWARD") : (t ? t("modal_add_title") : "➕ ADD NEW WISHLIST REWARD")}
         </h3>
 
         <form onSubmit={handleSubmit}>
           {/* Emoji Selector */}
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-              Select Icon:
+              {t ? t("modal_select_icon") : "Select Icon:"}
             </label>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", maxHeight: 105, overflowY: "auto", padding: "4px 2px" }}>
               {emojiOptions.map(em => (
@@ -1738,7 +1804,7 @@ function RewardModal({ initialData, onClose, onSave }) {
           {/* Title Input */}
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-              Reward Name / Treat:
+              {t ? t("modal_reward_name") : "Reward Name / Treat:"}
             </label>
             <input
               type="text"
@@ -1765,7 +1831,7 @@ function RewardModal({ initialData, onClose, onSave }) {
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted }}>
-                Required Medals (🏅):
+                {t ? t("modal_required_medals") : "Required Medals (🏅):"}
               </label>
               <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: T.textBright }}>
                 {cost} 🏅
@@ -1836,7 +1902,7 @@ function RewardModal({ initialData, onClose, onSave }) {
                 cursor: "pointer"
               }}
             >
-              Cancel
+              {t ? t("modal_cancel") : "Cancel"}
             </button>
             <button
               type="submit"
@@ -1849,7 +1915,7 @@ function RewardModal({ initialData, onClose, onSave }) {
                 cursor: "pointer"
               }}
             >
-              {isEditing ? "💾 SAVE CHANGES" : "➕ ADD REWARD"}
+              {isEditing ? (t ? t("modal_save") : "💾 SAVE CHANGES") : (t ? t("modal_add_btn") : "➕ ADD REWARD")}
             </button>
           </div>
         </form>
@@ -1859,7 +1925,7 @@ function RewardModal({ initialData, onClose, onSave }) {
 }
 
 // ─── Modal: Waist Log (English) ──────────────────────────────────────────────
-function WaistModal({ onClose, onSave, todayStr }) {
+function WaistModal({ onClose, onSave, todayStr, lang = "zh", t }) {
   const [waistCm, setWaistCm] = useState("");
   const [weightKg, setWeightKg] = useState("");
   const [notes, setNotes] = useState("");
@@ -1884,12 +1950,12 @@ function WaistModal({ onClose, onSave, todayStr }) {
     >
       <div className="icy-card" style={{ maxWidth: 380, width: "100%", padding: 24 }}>
         <h3 style={{ fontSize: 22, color: T.textDeep, marginBottom: 14 }}>
-          📏 LOG NAVEL WAISTLINE
+          {t ? t("waist_modal_title") : "📏 LOG NAVEL WAISTLINE"}
         </h3>
 
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 800, color: T.textMuted, display: "block", marginBottom: 6 }}>
-            Navel Horizontal Waist (cm) *
+            {t ? t("waist_input_label") : "Navel Horizontal Waist (cm) *"}
           </label>
           <input
             type="number"
@@ -1953,7 +2019,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
               cursor: "pointer"
             }}
           >
-            CANCEL
+            {t ? t("waist_cancel") : "CANCEL"}
           </button>
           <button
             type="button"
@@ -1962,7 +2028,7 @@ function WaistModal({ onClose, onSave, todayStr }) {
             className="btn-lime"
             style={{ flex: 1, fontSize: 16 }}
           >
-            SAVE RECORD
+            {t ? t("waist_save") : "SAVE RECORD"}
           </button>
         </div>
       </div>

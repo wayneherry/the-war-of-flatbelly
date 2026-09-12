@@ -42,9 +42,10 @@ body {
 
 /* Athletic Bebas Neue Headings */
 h1, h2, h3, h4, .font-bebas {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Bebas Neue', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
   letter-spacing: 0.05em;
   line-height: 1.1;
+  font-weight: 900;
 }
 
 .font-num {
