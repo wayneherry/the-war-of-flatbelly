@@ -508,7 +508,7 @@ export default function App() {
                 style={{
                   background: T.lime,
                   color: T.textDeep,
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 900,
                   fontSize: 10,
                   padding: "3px 8px",
@@ -524,11 +524,10 @@ export default function App() {
             </div>
             <h1
               style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: 21,
-                fontWeight: 900,
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: 28,
+                letterSpacing: "0.05em",
                 color: T.textDeep,
-                letterSpacing: "-0.03em",
                 lineHeight: 1.15,
                 marginTop: 2
               }}
@@ -570,7 +569,7 @@ export default function App() {
                 display: "flex",
                 alignItems: "center",
                 gap: 5,
-                fontFamily: "'Syne', sans-serif",
+                fontFamily: "'Bebas Neue', sans-serif",
                 fontWeight: 900,
                 fontSize: 14,
                 cursor: "pointer",
@@ -633,7 +632,7 @@ export default function App() {
                       style={{
                         background: completedToday ? T.lime : T.textMain,
                         color: completedToday ? T.textDeep : "#FFFFFF",
-                        fontFamily: "'Syne', sans-serif",
+                        fontFamily: "'Bebas Neue', sans-serif",
                         fontSize: 11,
                         fontWeight: 800,
                         padding: "3px 9px",
@@ -718,7 +717,7 @@ export default function App() {
                         style={{
                           background: isLazy ? T.lime : T.bgSubtle,
                           color: T.textDeep,
-                          fontFamily: "'Syne', sans-serif",
+                          fontFamily: "'Bebas Neue', sans-serif",
                           fontWeight: 800,
                           fontSize: 11,
                           padding: "4px 10px",
@@ -765,12 +764,12 @@ export default function App() {
                 borderColor: T.lime
               }}
             >
-              <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 12, fontWeight: 900, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 12, fontWeight: 900, color: T.textBright, letterSpacing: "0.08em", textTransform: "uppercase" }}>
                 MEDAL TREASURY · EARNED GLORY
               </div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, margin: "10px 0" }}>
                 <span style={{ fontSize: 44 }}>🏅</span>
-                <span className="font-num" style={{ fontSize: 56, fontWeight: 900, color: T.textDeep, lineHeight: 1 }}>
+                <span className="font-num" style={{ fontSize: 66, color: T.textDeep, letterSpacing: "0.02em", lineHeight: 1 }}>
                   {medals.balance}
                 </span>
                 <span style={{ fontSize: 15, fontWeight: 800, color: T.textMuted, alignSelf: "flex-end", marginBottom: 10 }}>
@@ -944,10 +943,10 @@ export default function App() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <div>
-                  <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                     BELLY TRANSFORMATION · NAVEL WAISTLINE
                   </div>
-                  <h3 className="font-num" style={{ fontSize: 28, fontWeight: 900, color: T.textDeep, marginTop: 2 }}>
+                  <h3 className="font-num" style={{ fontSize: 34, color: T.textDeep, letterSpacing: "0.03em", marginTop: 2 }}>
                     {latestWaist ? `${latestWaist} cm` : "No records logged"}
                   </h3>
                 </div>
@@ -1024,7 +1023,7 @@ export default function App() {
                             style={{
                               background: T.lime,
                               color: T.textDeep,
-                              fontFamily: "'Syne', sans-serif",
+                              fontFamily: "'Bebas Neue', sans-serif",
                               fontWeight: 900,
                               fontSize: 11,
                               padding: "4px 9px",
@@ -1085,7 +1084,7 @@ export default function App() {
                   border: `1px solid ${soundOn ? T.limeHover : T.border}`,
                   borderRadius: 20,
                   padding: "6px 14px",
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 800,
                   fontSize: 12,
                   cursor: "pointer"
@@ -1148,7 +1147,7 @@ export default function App() {
                   border: `1.5px solid ${T.textBright}`,
                   borderRadius: 14,
                   padding: "13px 18px",
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 900,
                   fontSize: 13,
                   letterSpacing: "0.02em",
@@ -1210,7 +1209,7 @@ export default function App() {
                   alignItems: "center",
                   gap: 3,
                   cursor: "pointer",
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: isCurr ? 900 : 700,
                   fontSize: 10,
                   letterSpacing: "0.04em",
@@ -1247,7 +1246,7 @@ export default function App() {
           {/* HUD Top Bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 520, margin: "0 auto", width: "100%" }}>
             <div>
-              <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 11, fontWeight: 900, color: T.textBright, letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 {activeRoutine.title}
               </span>
               <div style={{ fontSize: 13, fontWeight: 800, color: T.textDeep }}>
@@ -1284,7 +1283,7 @@ export default function App() {
                   borderRadius: 12,
                   padding: "0 12px",
                   fontSize: 12,
-                  fontFamily: "'Syne', sans-serif",
+                  fontFamily: "'Bebas Neue', sans-serif",
                   fontWeight: 800,
                   color: T.textMuted,
                   cursor: "pointer"
@@ -1350,7 +1349,7 @@ export default function App() {
                         style={{
                           background: isWork ? T.lime : T.bgSubtle,
                           color: T.textDeep,
-                          fontFamily: "'Syne', sans-serif",
+                          fontFamily: "'Bebas Neue', sans-serif",
                           fontSize: 11,
                           fontWeight: 900,
                           padding: "3px 10px",
@@ -1364,8 +1363,8 @@ export default function App() {
                       <span
                         className="font-num"
                         style={{
-                          fontSize: 54,
-                          fontWeight: 900,
+                          fontSize: 70,
+                          letterSpacing: "0.02em",
                           color: T.textDeep,
                           lineHeight: 1
                         }}
@@ -1425,7 +1424,7 @@ export default function App() {
                 border: `1.5px solid ${T.border}`,
                 borderRadius: 14,
                 padding: "14px 22px",
-                fontFamily: "'Syne', sans-serif",
+                fontFamily: "'Bebas Neue', sans-serif",
                 fontWeight: 800,
                 color: T.textDeep,
                 fontSize: 14,
@@ -1506,7 +1505,7 @@ export default function App() {
             >
               <span style={{ fontSize: 38 }}>🏅</span>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 18, fontWeight: 900, color: T.textDeep }}>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, fontWeight: 900, color: T.textDeep }}>
                   {victoryModal.medalsGained > 0 ? "+1 FLATBELLY MEDAL!" : "DAILY MEDAL SECURED"}
                 </div>
                 <div style={{ fontSize: 12, color: T.textMuted, fontWeight: 700 }}>
