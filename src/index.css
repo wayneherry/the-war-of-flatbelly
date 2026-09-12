@@ -156,3 +156,22 @@ h1, h2, h3, h4, .font-bebas {
   background: rgba(150, 27, 72, 0.2);
   border-radius: 3px;
 }
+
+/* Float animations for cute workout characters */
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(6px); }
+}
+
+.anim-float {
+  animation: floatSubtle 4s ease-in-out infinite;
+}
+
+.anim-float-rev {
+  animation: floatReverse 4.5s ease-in-out infinite;
+}

@@ -662,18 +662,138 @@ export default function App() {
 
       {/* Main Content Area */}
       <main style={{ maxWidth: 640, margin: "0 auto", padding: "16px 16px 28px" }}>
-        {/* ─── TAB 1: WAR ROOM (MINIMALIST 3 BIG TYPOGRAPHIC CHOICES) ─────── */}
+        {/* ─── TAB 1: WAR ROOM (MINIMALIST 3 BIG TYPOGRAPHIC CHOICES + CUTE ILLUSTRATION BG) ─────── */}
         {activeTab === "battle" && (
           <div
             style={{
+              position: "relative",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              minHeight: "calc(100vh - 210px)",
-              padding: "12px 0"
+              minHeight: "calc(100vh - 200px)",
+              padding: "10px 0",
+              overflow: "hidden"
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {/* Cute Workout Illustrations Ambient Background */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                pointerEvents: "none",
+                zIndex: 0,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                alignItems: "center",
+                userSelect: "none"
+              }}
+            >
+              {/* Top Row Illustrations */}
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  padding: "0 6px",
+                  opacity: 0.55
+                }}
+              >
+                <img
+                  src="/characters/char_stretch_woman.webp"
+                  alt=""
+                  className="anim-float"
+                  style={{
+                    height: "clamp(96px, 20vw, 140px)",
+                    objectFit: "contain",
+                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
+                  }}
+                />
+                <img
+                  src="/characters/char_barbell_squat.webp"
+                  alt=""
+                  className="anim-float-rev"
+                  style={{
+                    height: "clamp(84px, 17vw, 120px)",
+                    objectFit: "contain",
+                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
+                  }}
+                />
+              </div>
+
+              {/* Center Main Watermark Banner */}
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: 580,
+                  opacity: 0.36,
+                  textAlign: "center",
+                  padding: "0 8px",
+                  transform: "scale(1.02)"
+                }}
+              >
+                <img
+                  src="/workout-illustrations.webp"
+                  alt="Cute Workout Art"
+                  style={{
+                    width: "100%",
+                    maxHeight: "clamp(180px, 34vh, 260px)",
+                    objectFit: "contain",
+                    filter: "saturate(1.25) drop-shadow(0 8px 24px rgba(150, 27, 72, 0.10))"
+                  }}
+                />
+              </div>
+
+              {/* Bottom Row Illustrations */}
+              <div
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  padding: "0 6px",
+                  opacity: 0.55
+                }}
+              >
+                <img
+                  src="/characters/char_kneel_stretch.webp"
+                  alt=""
+                  className="anim-float-rev"
+                  style={{
+                    height: "clamp(90px, 18vw, 130px)",
+                    objectFit: "contain",
+                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
+                  }}
+                />
+                <img
+                  src="/characters/char_foam_roller.webp"
+                  alt=""
+                  className="anim-float"
+                  style={{
+                    height: "clamp(75px, 15vw, 105px)",
+                    objectFit: "contain",
+                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* 3 Big Action Choices */}
+            <div
+              style={{
+                position: "relative",
+                zIndex: 10,
+                display: "flex",
+                flexDirection: "column",
+                gap: 16
+              }}
+            >
               {ROUTINES.map(rt => {
                 const isSelected = selectedRoutineId === rt.id;
                 const isOtherSelected = selectedRoutineId !== null && !isSelected;
@@ -697,19 +817,21 @@ export default function App() {
                       }, 420);
                     }}
                     style={{
-                      background: isSelected ? T.lime : "rgba(255, 255, 255, 0.94)",
-                      color: isSelected ? T.textDeep : T.textDeep,
+                      background: isSelected ? T.lime : "rgba(255, 255, 255, 0.88)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      color: T.textDeep,
                       border: isSelected ? `2.5px solid ${T.limeHover}` : `2px solid ${T.border}`,
-                      borderRadius: 24,
-                      padding: "40px 20px",
+                      borderRadius: 22,
+                      padding: "34px 14px",
                       textAlign: "center",
                       cursor: "pointer",
                       userSelect: "none",
                       boxShadow: isSelected
                         ? `0 18px 48px ${T.limeGlow}`
-                        : "0 10px 30px rgba(150, 27, 72, 0.05)",
+                        : "0 10px 30px rgba(150, 27, 72, 0.06)",
                       transform: isSelected
-                        ? "scale(1.10)"
+                        ? "scale(1.08)"
                         : isOtherSelected
                         ? "scale(0.92)"
                         : "scale(1)",
@@ -722,10 +844,11 @@ export default function App() {
                     <div
                       style={{
                         fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: "clamp(32px, 8.5vw, 48px)",
-                        letterSpacing: "0.06em",
+                        fontSize: "clamp(23px, 6.4vw, 42px)",
+                        letterSpacing: "0.04em",
                         lineHeight: 1.05,
-                        color: T.textDeep
+                        color: T.textDeep,
+                        whiteSpace: "nowrap"
                       }}
                     >
                       {routineTitleText}
