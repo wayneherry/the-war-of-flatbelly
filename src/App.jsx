@@ -510,7 +510,7 @@ export default function App() {
 
   // ─── 2. MAIN APPLICATION INTERFACE ──────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 88, position: "relative" }}>
+    <div style={{ minHeight: "100dvh", background: T.bg, paddingBottom: activeTab === "battle" ? 64 : 88, position: "relative" }}>
       {/* Toast Notification */}
       {toastMsg && (
         <div
@@ -549,7 +549,7 @@ export default function App() {
           position: "sticky",
           top: 0,
           zIndex: 40,
-          padding: "14px 20px"
+          padding: "10px 16px"
         }}
       >
         <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -661,16 +661,16 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{ maxWidth: 640, margin: "0 auto", padding: "16px 16px 28px" }}>
-        {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES + COMPLETE UNCROPPED CUTE WORKOUT ART) ─────── */}
+      <main style={{ maxWidth: 640, margin: "0 auto", padding: activeTab === "battle" ? "8px 14px 2px" : "16px 16px 28px", height: activeTab === "battle" ? "calc(100dvh - 128px)" : "auto", boxSizing: "border-box", overflow: activeTab === "battle" ? "hidden" : "visible" }}>
+        {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES + COMPLETE UNCROPPED CUTE WORKOUT ART - SINGLE SCREEN) ─────── */}
         {activeTab === "battle" && (
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              minHeight: "calc(100vh - 170px)",
-              padding: "8px 0 0",
+              height: "100%",
+              boxSizing: "border-box",
               position: "relative"
             }}
           >
@@ -679,8 +679,8 @@ export default function App() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 14,
-                marginTop: 4,
+                gap: "clamp(8px, 1.8vh, 14px)",
+                marginTop: 2,
                 position: "relative",
                 zIndex: 10
               }}
@@ -713,14 +713,14 @@ export default function App() {
                       WebkitBackdropFilter: "blur(10px)",
                       color: T.textDeep,
                       border: isSelected ? `2.5px solid ${T.limeHover}` : `2px solid ${T.border}`,
-                      borderRadius: 22,
-                      padding: "26px 14px",
+                      borderRadius: 20,
+                      padding: "clamp(14px, 2.5vh, 22px) 12px",
                       textAlign: "center",
                       cursor: "pointer",
                       userSelect: "none",
                       boxShadow: isSelected
                         ? `0 18px 48px ${T.limeGlow}`
-                        : "0 8px 24px rgba(150, 27, 72, 0.05)",
+                        : "0 6px 20px rgba(150, 27, 72, 0.05)",
                       transform: isSelected
                         ? "scale(1.08)"
                         : isOtherSelected
@@ -735,7 +735,7 @@ export default function App() {
                     <div
                       style={{
                         fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: "clamp(24px, 6.6vw, 38px)",
+                        fontSize: "clamp(22px, 6vw, 34px)",
                         letterSpacing: "0.04em",
                         lineHeight: 1.05,
                         color: T.textDeep,
@@ -749,14 +749,18 @@ export default function App() {
               })}
             </div>
 
-            {/* Complete, Uncropped Cute Workout Illustration Grounded Scene */}
+            {/* Complete, Uncropped Cute Workout Illustration Grounded at Bottom */}
             <div
               style={{
                 width: "100%",
                 textAlign: "center",
                 pointerEvents: "none",
                 marginTop: "auto",
-                padding: "8px 0 2px",
+                padding: "2px 0",
+                flexShrink: 1,
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
                 userSelect: "none",
                 opacity: selectedRoutineId !== null ? 0 : 1,
                 transition: "opacity 0.35s ease"
@@ -767,7 +771,7 @@ export default function App() {
                 alt="Cute Workout Illustration"
                 style={{
                   width: "100%",
-                  maxHeight: "clamp(150px, 26vh, 220px)",
+                  maxHeight: "clamp(120px, 25vh, 210px)",
                   objectFit: "contain",
                   filter: "drop-shadow(0 6px 18px rgba(150, 27, 72, 0.08))"
                 }}
