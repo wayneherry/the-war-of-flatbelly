@@ -385,6 +385,34 @@ export default function App() {
     say("📏 圍度記錄已更新！平肚進化中！");
   }
 
+  function handleDeleteHistory(id) {
+    const item = history.find(h => h.id === id);
+    if (!item) return;
+    if (!confirm(`確定要刪除「${item.routineTitle}」這筆測試紀錄嗎？`)) return;
+
+    if (item.medalsAwarded > 0) {
+      setMedals(p => ({
+        balance: Math.max(0, p.balance - item.medalsAwarded),
+        total: Math.max(0, p.total - item.medalsAwarded)
+      }));
+    }
+    setHistory(p => p.filter(h => h.id !== id));
+    say("已刪除該筆測試紀錄，勳章已扣回！");
+  }
+
+  function handleResetAllData() {
+    if (!confirm("確定要將所有測試作戰紀錄與勳章歸零重設嗎？")) return;
+    setMedals({ balance: 0, total: 0 });
+    setHistory([]);
+    setRedemptions([]);
+    try {
+      localStorage.removeItem("flatbelly_medals");
+      localStorage.removeItem("flatbelly_history");
+      localStorage.removeItem("flatbelly_redemptions");
+    } catch (e) {}
+    say("✅ 勳章與測試紀錄已歸零！");
+  }
+
   // ─── Data Export / Import ───────────────────────────────────────────────────
   function handleExportData() {
     const data = {
@@ -986,7 +1014,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         {h.medalsAwarded > 0 ? (
                           <span
                             style={{
@@ -1005,6 +1033,21 @@ export default function App() {
                             加練燃脂 ⚡
                           </span>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteHistory(h.id)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: T.textMuted,
+                            cursor: "pointer",
+                            fontSize: 14,
+                            padding: "2px 4px"
+                          }}
+                          title="刪除此筆測試紀錄並扣回勳章"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1079,6 +1122,37 @@ export default function App() {
               <div style={{ fontSize: 11, color: T.textMuted }}>
                 所有作戰數據、勳章與圍度紀錄皆保存在您的手機本機中，安全無虞、離線秒開。
               </div>
+            </div>
+
+            {/* Reset / Clear Test Data Section */}
+            <div style={{ padding: "16px 0", borderTop: `1.5px dashed ${T.border}`, marginTop: 6 }}>
+              <div style={{ fontWeight: 800, color: T.textBright, fontSize: 15, marginBottom: 4 }}>
+                🗑️ 測試紀錄與勳章清除
+              </div>
+              <div style={{ fontSize: 12, color: T.textMuted, marginBottom: 12, lineHeight: 1.4 }}>
+                剛才僅是測試功能？點擊下方按鈕即可將測試產生的作戰歷史與戰功勳章全部歸零，重新乾淨開始！
+              </div>
+              <button
+                type="button"
+                onClick={handleResetAllData}
+                style={{
+                  background: "rgba(212, 43, 102, 0.1)",
+                  color: T.textBright,
+                  border: `1.5px solid ${T.textBright}`,
+                  borderRadius: 12,
+                  padding: "12px 18px",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  cursor: "pointer",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8
+                }}
+              >
+                <span>🔄 一鍵歸零勳章與作戰紀錄</span>
+              </button>
             </div>
           </div>
         )}
