@@ -33,7 +33,7 @@
 body {
   background-color: var(--bg-icy-pink);
   color: var(--raspberry-main);
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.5;

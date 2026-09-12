@@ -1666,10 +1666,10 @@ function RewardModal({ initialData, onClose, onSave }) {
   const isEditing = Boolean(initialData?.id);
   const [title, setTitle] = useState(initialData?.title || "");
   const [cost, setCost] = useState(initialData?.cost || 3);
-  const [emoji, setEmoji] = useState(initialData?.emoji || "🧋");
+  const [emoji, setEmoji] = useState(initialData?.emoji || "🥤");
 
   const emojiOptions = [
-    "🧋", "🎮", "🍣", "🎬", "👕", "👟", "☕", "🍕", "💆", "🏖️", "📚", "🎁",
+    "🥤", "🎮", "🍣", "🎬", "👕", "👟", "☕", "🍕", "💆", "🏖️", "📚", "🎁",
     "🍰", "🍦", "🍔", "🍻", "🎧", "🚲", "✈️", "🛋️", "📱", "🏆"
   ];
 

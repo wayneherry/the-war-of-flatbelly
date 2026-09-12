@@ -3,7 +3,7 @@ export const INITIAL_REWARDS = [
   {
     id: "rew_1",
     title: "Iced Milk Tea with Boba",
-    emoji: "🧋",
+    emoji: "🥤",
     cost: 3,
     category: "drink",
     redeemedCount: 0
