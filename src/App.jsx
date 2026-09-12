@@ -662,136 +662,27 @@ export default function App() {
 
       {/* Main Content Area */}
       <main style={{ maxWidth: 640, margin: "0 auto", padding: "16px 16px 28px" }}>
-        {/* ─── TAB 1: WAR ROOM (MINIMALIST 3 BIG TYPOGRAPHIC CHOICES + CUTE ILLUSTRATION BG) ─────── */}
+        {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES + COMPLETE UNCROPPED CUTE WORKOUT ART) ─────── */}
         {activeTab === "battle" && (
           <div
             style={{
-              position: "relative",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "center",
-              minHeight: "calc(100vh - 200px)",
-              padding: "10px 0",
-              overflow: "hidden"
+              justifyContent: "space-between",
+              minHeight: "calc(100vh - 170px)",
+              padding: "8px 0 0",
+              position: "relative"
             }}
           >
-            {/* Cute Workout Illustrations Ambient Background */}
+            {/* 3 Action Buttons */}
             <div
-              aria-hidden="true"
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                pointerEvents: "none",
-                zIndex: 0,
-                overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "space-between",
-                alignItems: "center",
-                userSelect: "none"
-              }}
-            >
-              {/* Top Row Illustrations */}
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  padding: "0 6px",
-                  opacity: 0.55
-                }}
-              >
-                <img
-                  src="/characters/char_stretch_woman.webp"
-                  alt=""
-                  className="anim-float"
-                  style={{
-                    height: "clamp(96px, 20vw, 140px)",
-                    objectFit: "contain",
-                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
-                  }}
-                />
-                <img
-                  src="/characters/char_barbell_squat.webp"
-                  alt=""
-                  className="anim-float-rev"
-                  style={{
-                    height: "clamp(84px, 17vw, 120px)",
-                    objectFit: "contain",
-                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
-                  }}
-                />
-              </div>
-
-              {/* Center Main Watermark Banner */}
-              <div
-                style={{
-                  width: "100%",
-                  maxWidth: 580,
-                  opacity: 0.36,
-                  textAlign: "center",
-                  padding: "0 8px",
-                  transform: "scale(1.02)"
-                }}
-              >
-                <img
-                  src="/workout-illustrations.webp"
-                  alt="Cute Workout Art"
-                  style={{
-                    width: "100%",
-                    maxHeight: "clamp(180px, 34vh, 260px)",
-                    objectFit: "contain",
-                    filter: "saturate(1.25) drop-shadow(0 8px 24px rgba(150, 27, 72, 0.10))"
-                  }}
-                />
-              </div>
-
-              {/* Bottom Row Illustrations */}
-              <div
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                  padding: "0 6px",
-                  opacity: 0.55
-                }}
-              >
-                <img
-                  src="/characters/char_kneel_stretch.webp"
-                  alt=""
-                  className="anim-float-rev"
-                  style={{
-                    height: "clamp(90px, 18vw, 130px)",
-                    objectFit: "contain",
-                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
-                  }}
-                />
-                <img
-                  src="/characters/char_foam_roller.webp"
-                  alt=""
-                  className="anim-float"
-                  style={{
-                    height: "clamp(75px, 15vw, 105px)",
-                    objectFit: "contain",
-                    filter: "saturate(1.2) drop-shadow(0 4px 12px rgba(150, 27, 72, 0.10))"
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* 3 Big Action Choices */}
-            <div
-              style={{
+                gap: 14,
+                marginTop: 4,
                 position: "relative",
-                zIndex: 10,
-                display: "flex",
-                flexDirection: "column",
-                gap: 16
+                zIndex: 10
               }}
             >
               {ROUTINES.map(rt => {
@@ -817,19 +708,19 @@ export default function App() {
                       }, 420);
                     }}
                     style={{
-                      background: isSelected ? T.lime : "rgba(255, 255, 255, 0.88)",
+                      background: isSelected ? T.lime : "rgba(255, 255, 255, 0.92)",
                       backdropFilter: "blur(10px)",
                       WebkitBackdropFilter: "blur(10px)",
                       color: T.textDeep,
                       border: isSelected ? `2.5px solid ${T.limeHover}` : `2px solid ${T.border}`,
                       borderRadius: 22,
-                      padding: "34px 14px",
+                      padding: "26px 14px",
                       textAlign: "center",
                       cursor: "pointer",
                       userSelect: "none",
                       boxShadow: isSelected
                         ? `0 18px 48px ${T.limeGlow}`
-                        : "0 10px 30px rgba(150, 27, 72, 0.06)",
+                        : "0 8px 24px rgba(150, 27, 72, 0.05)",
                       transform: isSelected
                         ? "scale(1.08)"
                         : isOtherSelected
@@ -844,7 +735,7 @@ export default function App() {
                     <div
                       style={{
                         fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: "clamp(23px, 6.4vw, 42px)",
+                        fontSize: "clamp(24px, 6.6vw, 38px)",
                         letterSpacing: "0.04em",
                         lineHeight: 1.05,
                         color: T.textDeep,
@@ -856,6 +747,31 @@ export default function App() {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Complete, Uncropped Cute Workout Illustration Grounded Scene */}
+            <div
+              style={{
+                width: "100%",
+                textAlign: "center",
+                pointerEvents: "none",
+                marginTop: "auto",
+                padding: "8px 0 2px",
+                userSelect: "none",
+                opacity: selectedRoutineId !== null ? 0 : 1,
+                transition: "opacity 0.35s ease"
+              }}
+            >
+              <img
+                src="/workout-illustrations.webp"
+                alt="Cute Workout Illustration"
+                style={{
+                  width: "100%",
+                  maxHeight: "clamp(150px, 26vh, 220px)",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 6px 18px rgba(150, 27, 72, 0.08))"
+                }}
+              />
             </div>
           </div>
         )}
