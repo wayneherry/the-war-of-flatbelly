@@ -1,0 +1,16 @@
+{
+  "name": "The War of FlatBelly · 平肚之戰",
+  "short_name": "FlatBelly War",
+  "description": "專為懶人設計的隔日微運動與自我獎勵平肚作戰系統",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FDF0F4",
+  "theme_color": "#961B48",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

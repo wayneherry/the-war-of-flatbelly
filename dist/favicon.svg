@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDF0F4"/>
+      <stop offset="100%" stop-color="#FCE4EC"/>
+    </linearGradient>
+    <linearGradient id="berry" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D42B66"/>
+      <stop offset="100%" stop-color="#8F143E"/>
+    </linearGradient>
+    <linearGradient id="lime" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4F52B"/>
+      <stop offset="100%" stop-color="#A2C900"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" rx="26" fill="url(#berry)"/>
+  <!-- Waist Silhouette / Shield -->
+  <path d="M26 30 Q50 38 74 30 Q68 55 70 70 Q50 78 30 70 Q32 55 26 30 Z" fill="#FDF0F4" opacity="0.95"/>
+  <!-- Lime Punch Core Flame / Lightning -->
+  <path d="M50 20 L58 38 L72 40 L60 52 L64 68 L50 58 L36 68 L40 52 L28 40 L42 38 Z" fill="url(#lime)"/>
+  <circle cx="50" cy="50" r="12" fill="#8F143E"/>
+  <circle cx="50" cy="50" r="7" fill="url(#lime)"/>
+</svg>
