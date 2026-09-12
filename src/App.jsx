@@ -662,27 +662,49 @@ export default function App() {
 
       {/* Main Content Area */}
       <main style={{ maxWidth: 640, margin: "0 auto", padding: activeTab === "battle" ? "8px 14px 2px" : "16px 16px 28px", height: activeTab === "battle" ? "calc(100dvh - 128px)" : "auto", boxSizing: "border-box", overflow: activeTab === "battle" ? "hidden" : "visible" }}>
-        {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES + COMPLETE UNCROPPED CUTE WORKOUT ART - SINGLE SCREEN) ─────── */}
+        {/* ─── TAB 1: WAR ROOM (3 BIG CHOICES WITH REPEATING WORKOUT ART WALLPAPER BEHIND) ─────── */}
         {activeTab === "battle" && (
           <div
             style={{
+              position: "relative",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between",
+              justifyContent: "center",
               height: "100%",
+              minHeight: "calc(100dvh - 140px)",
+              padding: "16px 0",
               boxSizing: "border-box",
-              position: "relative"
+              overflow: "hidden"
             }}
           >
-            {/* 3 Action Buttons */}
+            {/* Repeating Cute Workout Illustrations Wallpaper BEHIND the 3 Options */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: "url('/workout-illustrations.webp')",
+                backgroundSize: "clamp(320px, 80vw, 420px) auto",
+                backgroundRepeat: "repeat",
+                backgroundPosition: "center top",
+                opacity: selectedRoutineId !== null ? 0.15 : 0.40,
+                filter: "saturate(1.25)",
+                pointerEvents: "none",
+                zIndex: 0,
+                userSelect: "none",
+                transition: "opacity 0.4s ease"
+              }}
+            />
+
+            {/* 3 Action Buttons Placed Proudly IN FRONT */}
             <div
               style={{
+                position: "relative",
+                zIndex: 10,
                 display: "flex",
                 flexDirection: "column",
-                gap: "clamp(8px, 1.8vh, 14px)",
-                marginTop: 2,
-                position: "relative",
-                zIndex: 10
+                gap: "clamp(12px, 2.2vh, 18px)",
+                width: "100%"
               }}
             >
               {ROUTINES.map(rt => {
@@ -713,14 +735,14 @@ export default function App() {
                       WebkitBackdropFilter: "blur(10px)",
                       color: T.textDeep,
                       border: isSelected ? `2.5px solid ${T.limeHover}` : `2px solid ${T.border}`,
-                      borderRadius: 20,
-                      padding: "clamp(14px, 2.5vh, 22px) 12px",
+                      borderRadius: 22,
+                      padding: "clamp(24px, 4vh, 34px) 14px",
                       textAlign: "center",
                       cursor: "pointer",
                       userSelect: "none",
                       boxShadow: isSelected
                         ? `0 18px 48px ${T.limeGlow}`
-                        : "0 6px 20px rgba(150, 27, 72, 0.05)",
+                        : "0 10px 30px rgba(150, 27, 72, 0.08)",
                       transform: isSelected
                         ? "scale(1.08)"
                         : isOtherSelected
@@ -735,8 +757,8 @@ export default function App() {
                     <div
                       style={{
                         fontFamily: "'Bebas Neue', sans-serif",
-                        fontSize: "clamp(22px, 6vw, 34px)",
-                        letterSpacing: "0.04em",
+                        fontSize: "clamp(26px, 7vw, 40px)",
+                        letterSpacing: "0.05em",
                         lineHeight: 1.05,
                         color: T.textDeep,
                         whiteSpace: "nowrap"
@@ -747,35 +769,6 @@ export default function App() {
                   </div>
                 );
               })}
-            </div>
-
-            {/* Complete, Uncropped Cute Workout Illustration Grounded at Bottom */}
-            <div
-              style={{
-                width: "100%",
-                textAlign: "center",
-                pointerEvents: "none",
-                marginTop: "auto",
-                padding: "2px 0",
-                flexShrink: 1,
-                display: "flex",
-                alignItems: "flex-end",
-                justifyContent: "center",
-                userSelect: "none",
-                opacity: selectedRoutineId !== null ? 0 : 1,
-                transition: "opacity 0.35s ease"
-              }}
-            >
-              <img
-                src="/workout-illustrations.webp"
-                alt="Cute Workout Illustration"
-                style={{
-                  width: "100%",
-                  maxHeight: "clamp(120px, 25vh, 210px)",
-                  objectFit: "contain",
-                  filter: "drop-shadow(0 6px 18px rgba(150, 27, 72, 0.08))"
-                }}
-              />
             </div>
           </div>
         )}
